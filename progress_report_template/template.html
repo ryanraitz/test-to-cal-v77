@@ -3151,18 +3151,18 @@ svg.appendChild(defs);
           }
         }
 
-        range.addEventListener("input", (e)=>{
-  try{ requestAnimationFrame(function(){ try{ requestAnimationFrame(function(){ try{ if(window.__syncMacroUI) window.__syncMacroUI(); }catch(e){} }); }catch(e){} }); }catch(e){}
+        range.addEventListener("input", (e)=>{ 
           const g = clampNum(e.target.value, minG, maxG);
           if(num) num.value = g;
           setG(g);
+          try{ if(typeof renderDietaryMacroBars==='function'){ renderDietaryMacroBars(); } }catch(_e){}
         });
 
-        num.addEventListener("input", (e)=>{
-  try{ requestAnimationFrame(function(){ try{ requestAnimationFrame(function(){ try{ if(window.__syncMacroUI) window.__syncMacroUI(); }catch(e){} }); }catch(e){} }); }catch(e){}
+        num.addEventListener("input", (e)=>{ 
           const g = clampNum(e.target.value, minG, maxG);
           if(range) range.value = g;
           setG(g);
+          try{ if(typeof renderDietaryMacroBars==='function'){ renderDietaryMacroBars(); } }catch(_e){}
         });
 
         steps.forEach(btn=>{
@@ -4057,49 +4057,76 @@ requestAnimationFrame(renderLines);
   // New grams are in REPORT_DATA.bar.{protein_g, carbs_g, fat_g}
   // Prev grams: optional; we look for common keys. If missing, we fall back to New (so you still see bars).
   function getPrevNewGrams(){
-    const RD = window.REPORT_DATA || {};
+  const RD = window.REPORT_DATA || {};
+  const tokens = (RD.tokens || {});
+  const mb = (RD.macroBars || RD.macro_bars || null);
 
-    // Current grams should mirror the donut + sliders in real time.
-    let curr = [0,0,0];
+  // --- Stored grams from last report vs this report (from JSON) ---
+  // Preferred: REPORT_DATA.macroBars.{prev,curr} numeric arrays.
+  // Fallback (legacy): tokens ROW_*_MID/ROW_*_VALUE (e.g., "180 g")
+  let storedPrev = [
+    num(tokens.ROW_1_MID),   // Protein old
+    num(tokens.ROW_2_MID),   // Carbs old
+    num(tokens.ROW_3_MID),   // Fat old
+  ];
+  let storedCurr = [
+    num(tokens.ROW_1_VALUE),
+    num(tokens.ROW_2_VALUE),
+    num(tokens.ROW_3_VALUE),
+  ];
+
+  try{
+    if(mb && Array.isArray(mb.prev) && mb.prev.length >= 3){
+      storedPrev = [num(mb.prev[0]), num(mb.prev[1]), num(mb.prev[2])];
+    }
+    if(mb && Array.isArray(mb.curr) && mb.curr.length >= 3){
+      storedCurr = [num(mb.curr[0]), num(mb.curr[1]), num(mb.curr[2])];
+    }
+  }catch(e){}
+
+  // If there is no previous report, anchor "Old" to the stored current.
+  const prev = storedPrev.map((v,i)=> (Number.isFinite(v) && v>0) ? v : storedCurr[i]);
+
+  // --- Live current grams: mirror donut + sliders in real time ---
+  let liveCurr = storedCurr.slice();
+  try{
     if(typeof getMacroDataFromReport === "function"){
       const items = getMacroDataFromReport() || [];
       const p = items.find(x=>String(x.key||"").toLowerCase()==="protein");
       const c = items.find(x=>String(x.key||"").toLowerCase()==="carbs");
-      const f = items.find(x=>String(x.key||"").toLowerCase()==="fat");
-      curr = [ num(p && p.grams), num(c && c.grams), num(f && f.grams) ];
-    } else {
-      const bar = RD.bar || {};
-      curr = [
-        num(bar.protein_g),
-        num(bar.carbs_g),
-        num(bar.fat_g),
-      ];
+      const f = items.find(x=>String(x.key||"").toLowerCase()==="fat" || String(x.key||"").toLowerCase()==="fats");
+      if(p && p.grams!=null) liveCurr[0] = num(p.grams);
+      if(c && c.grams!=null) liveCurr[1] = num(c.grams);
+      if(f && f.grams!=null) liveCurr[2] = num(f.grams);
     }
+  }catch(e){}
 
-    const prevBar =
-      RD.prev_bar ||
-      RD.prevBar  ||
-      RD.bar_prev ||
-      RD.prev     ||
-      null;
+  // Scaling baseline should NOT change when sliders move (so old bars do not visually shrink/grow).
+  // Anchor scaling to the stored (Old/New) values from the report JSON.
+  const baselineMax = Math.max(
+    1,
+    ...prev.map(v=>num(v||0)),
+    ...storedCurr.map(v=>num(v||0))
+  );
 
-    const prev = prevBar ? [
-      num(prevBar.protein_g ?? prevBar.protein),
-      num(prevBar.carbs_g   ?? prevBar.carbs),
-      num(prevBar.fat_g     ?? prevBar.fat),
-    ] : curr.slice(); // fallback: show 0% change but not blank
-
-    return { prev, curr };
-  }
+  return { prev, curr: liveCurr, storedCurr, baselineMax };
+}
 
   function getLabelsAndColors(){
     const RD = window.REPORT_DATA || {};
     const m = Array.isArray(RD.macros) ? RD.macros : [];
-    const labels = [
-      String((m[0] && m[0].label) || "Protein"),
-      String((m[1] && m[1].label) || "Carbs"),
-      String((m[2] && m[2].label) || "Fat"),
+    const mb = (RD.macroBars || RD.macro_bars || null);
+
+    const labels = (mb && Array.isArray(mb.labels) && mb.labels.length>=3) ? [
+      String(mb.labels[0] || "Protein"),
+      String(mb.labels[1] || "Carbs"),
+      String(mb.labels[2] || "Fat"),
+    ] : [
+      String((m[0] && (m[0].label || m[0].key)) || "Protein"),
+      String((m[1] && (m[1].label || m[1].key)) || "Carbs"),
+      String((m[2] && (m[2].label || m[2].key)) || "Fat"),
     ];
+
     // Match donut slice colors EXACTLY: use REPORT_DATA.macros[i].color
     const colors = [
       String((m[0] && m[0].color) || "#7C3AED"),
@@ -4113,7 +4140,7 @@ requestAnimationFrame(renderLines);
     const host = document.getElementById("dietaryMacroBars");
     if(!host) return;
 
-    const { prev, curr } = getPrevNewGrams();
+    const { prev, curr, baselineMax } = getPrevNewGrams();
     const { labels, colors } = getLabelsAndColors();
 
     host.innerHTML = "";
@@ -4122,7 +4149,7 @@ requestAnimationFrame(renderLines);
       const label = labels[i] || "";
       const p = num(prev[i] || 0);
       const c = num(curr[i] || 0);
-      const localMax = Math.max(1, p, c);
+      const localMax = baselineMax; // anchor scaling to stored Old/New values so Old bars don't shift when sliders move
       const color = colors[i] || "#999";
 
       const group = document.createElement("div");

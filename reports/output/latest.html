@@ -2353,7 +2353,7 @@ h2 {
 <!-- REPORT_JSON_PATH: /Users/ryanraitz/Library/test-to-cal-v77/reports/report.json -->
 
 <script>
-window.REPORT_DATA = {"dailySteps": 4000, "tokens": {"REPORT_TITLE": "Progress Report", "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.", "CLIENT_LABEL": "Matt Oppenheimer", "REPORT_DATE": "1.2.26", "DAILY_STEPS": "4000", "HEADER_CHIP_1": "GAIN", "HEADER_CHIP_2": "", "HEADER_CHIP_3": "XT", "MACROS_TITLE": "Macronutrient Breakdown", "PROTEIN_LABEL": "Protein", "PROTEIN_PCT": "30%", "CARB_LABEL": "Carbs", "CARB_PCT": "44%", "FAT_LABEL": "Fat", "FAT_PCT": "26%", "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.", "BARS_TITLE": "Composition changes", "TABLE_TITLE": "Dietary Changes", "TABLE_COL_1": "Macro", "TABLE_COL_2": "Old", "TABLE_COL_3": "New", "ROW_1_LABEL": "Protein", "ROW_1_MID": "150 g", "ROW_1_VALUE": "160 g", "ROW_2_LABEL": "Carbs", "ROW_2_MID": "169 g", "ROW_2_VALUE": "234 g", "ROW_3_LABEL": "Fats", "ROW_3_MID": "45 g", "ROW_3_VALUE": "62 g", "LINE_TITLE": "Goal Timeline", "AXIS_TOP": "Weight (lb)", "AXIS_BOTTOM": "Start", "AXIS_RIGHT": "Goal"}, "macros": [{"key": "Protein", "value": 30, "color": "var(--orange)"}, {"key": "Carbs", "value": 44, "color": "var(--teal)"}, {"key": "Fat", "value": 26, "color": "var(--teal2)"}], "bars": {"labels": ["Weight", "Bodyfat %", "TDEE", "Daily Calorie Goal", "Pull-Ups", "Push-Ups"], "prev": [150.0, 12.0, 2059, 1684, 5, 20], "curr": [160.0, 10.0, 2511, 2136, 10, 30]}, "goalTimeline": {"startWeight": 160.0, "goalWeight": 162.0, "estWeeksMin": 10, "estWeeksMax": 12, "rateLbPerWeek": 0.9, "variationPct": 0.2, "yTicks": [190, 187, 184, 181, 178, 172]}};
+window.REPORT_DATA = {"dailySteps": 2000, "tokens": {"REPORT_TITLE": "Progress Report", "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.", "CLIENT_LABEL": "DJ Aranguren", "REPORT_DATE": "1.2.26", "DAILY_STEPS": "2000", "HEADER_CHIP_1": "CUT", "HEADER_CHIP_2": "", "HEADER_CHIP_3": "XT", "MACROS_TITLE": "Macronutrient Breakdown", "PROTEIN_LABEL": "Protein", "PROTEIN_PCT": "31%", "CARB_LABEL": "Carbs", "CARB_PCT": "43%", "FAT_LABEL": "Fat", "FAT_PCT": "26%", "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.", "BARS_TITLE": "Composition changes", "TABLE_TITLE": "Dietary Changes", "TABLE_COL_1": "Macro", "TABLE_COL_2": "Old", "TABLE_COL_3": "New", "ROW_1_LABEL": "Protein", "ROW_1_MID": "170 g", "ROW_1_VALUE": "170 g", "ROW_2_LABEL": "Carbs", "ROW_2_MID": "234 g", "ROW_2_VALUE": "234 g", "ROW_3_LABEL": "Fats", "ROW_3_MID": "62 g", "ROW_3_VALUE": "62 g", "LINE_TITLE": "Goal Timeline", "AXIS_TOP": "Weight (lb)", "AXIS_BOTTOM": "Start", "AXIS_RIGHT": "Goal"}, "macros": [{"key": "Protein", "value": 31, "color": "var(--orange)"}, {"key": "Carbs", "value": 43, "color": "var(--teal)"}, {"key": "Fat", "value": 26, "color": "var(--teal2)"}], "macroBars": {"labels": ["Protein", "Carbs", "Fat"], "prev": [170.0, 234.0, 62.0], "curr": [170.0, 234.0, 62.0]}, "bars": {"labels": ["Weight", "Bodyfat %", "TDEE", "Daily Calorie Goal", "Pull-Ups", "Push-Ups"], "prev": [170.0, 25.0, 2553, 2178, 1, 5], "curr": [170.0, 25.0, 2553, 2178, 1, 5]}, "goalTimeline": {"startWeight": 170.0, "goalWeight": 150.0, "estWeeksMin": 10, "estWeeksMax": 12, "rateLbPerWeek": 0.9, "variationPct": 0.2, "yTicks": [190, 187, 184, 181, 178, 172]}};
 </script>
 </head>
 <body>
@@ -3154,18 +3154,18 @@ svg.appendChild(defs);
           }
         }
 
-        range.addEventListener("input", (e)=>{
-  try{ requestAnimationFrame(function(){ try{ requestAnimationFrame(function(){ try{ if(window.__syncMacroUI) window.__syncMacroUI(); }catch(e){} }); }catch(e){} }); }catch(e){}
+        range.addEventListener("input", (e)=>{ 
           const g = clampNum(e.target.value, minG, maxG);
           if(num) num.value = g;
           setG(g);
+          try{ if(typeof renderDietaryMacroBars==='function'){ renderDietaryMacroBars(); } }catch(_e){}
         });
 
-        num.addEventListener("input", (e)=>{
-  try{ requestAnimationFrame(function(){ try{ requestAnimationFrame(function(){ try{ if(window.__syncMacroUI) window.__syncMacroUI(); }catch(e){} }); }catch(e){} }); }catch(e){}
+        num.addEventListener("input", (e)=>{ 
           const g = clampNum(e.target.value, minG, maxG);
           if(range) range.value = g;
           setG(g);
+          try{ if(typeof renderDietaryMacroBars==='function'){ renderDietaryMacroBars(); } }catch(_e){}
         });
 
         steps.forEach(btn=>{
@@ -4060,49 +4060,76 @@ requestAnimationFrame(renderLines);
   // New grams are in REPORT_DATA.bar.{protein_g, carbs_g, fat_g}
   // Prev grams: optional; we look for common keys. If missing, we fall back to New (so you still see bars).
   function getPrevNewGrams(){
-    const RD = window.REPORT_DATA || {};
+  const RD = window.REPORT_DATA || {};
+  const tokens = (RD.tokens || {});
+  const mb = (RD.macroBars || RD.macro_bars || null);
 
-    // Current grams should mirror the donut + sliders in real time.
-    let curr = [0,0,0];
+  // --- Stored grams from last report vs this report (from JSON) ---
+  // Preferred: REPORT_DATA.macroBars.{prev,curr} numeric arrays.
+  // Fallback (legacy): tokens ROW_*_MID/ROW_*_VALUE (e.g., "180 g")
+  let storedPrev = [
+    num(tokens.ROW_1_MID),   // Protein old
+    num(tokens.ROW_2_MID),   // Carbs old
+    num(tokens.ROW_3_MID),   // Fat old
+  ];
+  let storedCurr = [
+    num(tokens.ROW_1_VALUE),
+    num(tokens.ROW_2_VALUE),
+    num(tokens.ROW_3_VALUE),
+  ];
+
+  try{
+    if(mb && Array.isArray(mb.prev) && mb.prev.length >= 3){
+      storedPrev = [num(mb.prev[0]), num(mb.prev[1]), num(mb.prev[2])];
+    }
+    if(mb && Array.isArray(mb.curr) && mb.curr.length >= 3){
+      storedCurr = [num(mb.curr[0]), num(mb.curr[1]), num(mb.curr[2])];
+    }
+  }catch(e){}
+
+  // If there is no previous report, anchor "Old" to the stored current.
+  const prev = storedPrev.map((v,i)=> (Number.isFinite(v) && v>0) ? v : storedCurr[i]);
+
+  // --- Live current grams: mirror donut + sliders in real time ---
+  let liveCurr = storedCurr.slice();
+  try{
     if(typeof getMacroDataFromReport === "function"){
       const items = getMacroDataFromReport() || [];
       const p = items.find(x=>String(x.key||"").toLowerCase()==="protein");
       const c = items.find(x=>String(x.key||"").toLowerCase()==="carbs");
-      const f = items.find(x=>String(x.key||"").toLowerCase()==="fat");
-      curr = [ num(p && p.grams), num(c && c.grams), num(f && f.grams) ];
-    } else {
-      const bar = RD.bar || {};
-      curr = [
-        num(bar.protein_g),
-        num(bar.carbs_g),
-        num(bar.fat_g),
-      ];
+      const f = items.find(x=>String(x.key||"").toLowerCase()==="fat" || String(x.key||"").toLowerCase()==="fats");
+      if(p && p.grams!=null) liveCurr[0] = num(p.grams);
+      if(c && c.grams!=null) liveCurr[1] = num(c.grams);
+      if(f && f.grams!=null) liveCurr[2] = num(f.grams);
     }
+  }catch(e){}
 
-    const prevBar =
-      RD.prev_bar ||
-      RD.prevBar  ||
-      RD.bar_prev ||
-      RD.prev     ||
-      null;
+  // Scaling baseline should NOT change when sliders move (so old bars do not visually shrink/grow).
+  // Anchor scaling to the stored (Old/New) values from the report JSON.
+  const baselineMax = Math.max(
+    1,
+    ...prev.map(v=>num(v||0)),
+    ...storedCurr.map(v=>num(v||0))
+  );
 
-    const prev = prevBar ? [
-      num(prevBar.protein_g ?? prevBar.protein),
-      num(prevBar.carbs_g   ?? prevBar.carbs),
-      num(prevBar.fat_g     ?? prevBar.fat),
-    ] : curr.slice(); // fallback: show 0% change but not blank
-
-    return { prev, curr };
-  }
+  return { prev, curr: liveCurr, storedCurr, baselineMax };
+}
 
   function getLabelsAndColors(){
     const RD = window.REPORT_DATA || {};
     const m = Array.isArray(RD.macros) ? RD.macros : [];
-    const labels = [
-      String((m[0] && m[0].label) || "Protein"),
-      String((m[1] && m[1].label) || "Carbs"),
-      String((m[2] && m[2].label) || "Fat"),
+    const mb = (RD.macroBars || RD.macro_bars || null);
+
+    const labels = (mb && Array.isArray(mb.labels) && mb.labels.length>=3) ? [
+      String(mb.labels[0] || "Protein"),
+      String(mb.labels[1] || "Carbs"),
+      String(mb.labels[2] || "Fat"),
+    ] : [
+      String((m[0] && (m[0].label || m[0].key)) || "Protein"),
+      String((m[1] && (m[1].label || m[1].key)) || "Carbs"),
+      String((m[2] && (m[2].label || m[2].key)) || "Fat"),
     ];
+
     // Match donut slice colors EXACTLY: use REPORT_DATA.macros[i].color
     const colors = [
       String((m[0] && m[0].color) || "#7C3AED"),
@@ -4116,7 +4143,7 @@ requestAnimationFrame(renderLines);
     const host = document.getElementById("dietaryMacroBars");
     if(!host) return;
 
-    const { prev, curr } = getPrevNewGrams();
+    const { prev, curr, baselineMax } = getPrevNewGrams();
     const { labels, colors } = getLabelsAndColors();
 
     host.innerHTML = "";
@@ -4125,7 +4152,7 @@ requestAnimationFrame(renderLines);
       const label = labels[i] || "";
       const p = num(prev[i] || 0);
       const c = num(curr[i] || 0);
-      const localMax = Math.max(1, p, c);
+      const localMax = baselineMax; // anchor scaling to stored Old/New values so Old bars don't shift when sliders move
       const color = colors[i] || "#999";
 
       const group = document.createElement("div");

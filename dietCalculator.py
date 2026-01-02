@@ -995,8 +995,24 @@ class DietCalculator(QWidget):
         old_pull = old_at(4, pullups)
         old_push = old_at(5, pushups)
 
-        # Old macro grams baseline = previous tokens ROW_*_VALUE
-        def old_macro(token_key: str, fallback_val: float) -> float:
+        # Old macro grams baseline = previous macroBars.curr (fallback to previous tokens ROW_*_VALUE)
+        prev_macro_curr = None
+        try:
+            prev_macro_curr = (prev_data or {}).get("macroBars", {}).get("curr", None)
+        except Exception:
+            prev_macro_curr = None
+
+        def prev_macro_at(i: int, fallback_val: float, token_key: str) -> float:
+            # Preferred: previous report's stored macroBars.curr numeric grams
+            try:
+                if isinstance(prev_macro_curr, list) and i < len(prev_macro_curr):
+                    v = float(prev_macro_curr[i])
+                    if v > 0:
+                        return v
+            except Exception:
+                pass
+
+            # Fallback: parse previous report tokens (e.g., "180 g")
             try:
                 t = (prev_data or {}).get("tokens", {})
                 s = str(t.get(token_key, "")).strip()
@@ -1007,9 +1023,9 @@ class DietCalculator(QWidget):
                 pass
             return float(fallback_val)
 
-        old_p = old_macro("ROW_1_VALUE", p_g)
-        old_c = old_macro("ROW_2_VALUE", c_g)
-        old_f = old_macro("ROW_3_VALUE", f_g)
+        old_p = prev_macro_at(0, p_g, "ROW_1_VALUE")
+        old_c = prev_macro_at(1, c_g, "ROW_2_VALUE")
+        old_f = prev_macro_at(2, f_g, "ROW_3_VALUE")
 
         # Macro percents (by calories)
         pk, ck, fk = p_g * 4.0, c_g * 4.0, f_g * 9.0
@@ -1081,6 +1097,11 @@ class DietCalculator(QWidget):
                 {"key": "Carbs", "value": c_pct, "color": "var(--teal)"},
                 {"key": "Fat", "value": f_pct, "color": "var(--teal2)"},
             ],
+            "macroBars": {
+                "labels": ["Protein", "Carbs", "Fat"],
+                "prev": [round(old_p, 1), round(old_c, 1), round(old_f, 1)],
+                "curr": [round(p_g, 1), round(c_g, 1), round(f_g, 1)],
+            },
             "bars": {
                 "labels": ["Weight", "Bodyfat %", "TDEE", "Daily Calorie Goal", "Pull-Ups", "Push-Ups"],
                 "prev": [round(old_weight, 1), round(old_bf, 1), round(old_tdee), round(old_cal), int(round(old_pull)), int(round(old_push))],
