@@ -1,21 +1,21 @@
 {
-  "dailySteps": 4000,
+  "dailySteps": 3000,
   "tokens": {
     "REPORT_TITLE": "Progress Report",
     "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.",
-    "CLIENT_LABEL": "Lawson Scher",
-    "REPORT_DATE": "12.31.25",
-    "DAILY_STEPS": "4000",
+    "CLIENT_LABEL": "Matt Oppenheimer",
+    "REPORT_DATE": "1.2.26",
+    "DAILY_STEPS": "3000",
     "HEADER_CHIP_1": "GAIN",
     "HEADER_CHIP_2": "",
     "HEADER_CHIP_3": "XT",
     "MACROS_TITLE": "Macronutrient Breakdown",
     "PROTEIN_LABEL": "Protein",
-    "PROTEIN_PCT": "30%",
+    "PROTEIN_PCT": "36%",
     "CARB_LABEL": "Carbs",
-    "CARB_PCT": "44%",
+    "CARB_PCT": "40%",
     "FAT_LABEL": "Fat",
-    "FAT_PCT": "26%",
+    "FAT_PCT": "24%",
     "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.",
     "BARS_TITLE": "Composition changes",
     "TABLE_TITLE": "Dietary Changes",
@@ -23,14 +23,14 @@
     "TABLE_COL_2": "Old",
     "TABLE_COL_3": "New",
     "ROW_1_LABEL": "Protein",
-    "ROW_1_MID": "155 g",
+    "ROW_1_MID": "150 g",
     "ROW_1_VALUE": "150 g",
     "ROW_2_LABEL": "Carbs",
-    "ROW_2_MID": "181 g",
-    "ROW_2_VALUE": "221 g",
+    "ROW_2_MID": "169 g",
+    "ROW_2_VALUE": "169 g",
     "ROW_3_LABEL": "Fats",
-    "ROW_3_MID": "48 g",
-    "ROW_3_VALUE": "59 g",
+    "ROW_3_MID": "45 g",
+    "ROW_3_VALUE": "45 g",
     "LINE_TITLE": "Goal Timeline",
     "AXIS_TOP": "Weight (lb)",
     "AXIS_BOTTOM": "Start",
@@ -39,17 +39,17 @@
   "macros": [
     {
       "key": "Protein",
-      "value": 30,
+      "value": 36,
       "color": "var(--orange)"
     },
     {
       "key": "Carbs",
-      "value": 44,
+      "value": 40,
       "color": "var(--teal)"
     },
     {
       "key": "Fat",
-      "value": 26,
+      "value": 24,
       "color": "var(--teal2)"
     }
   ],
@@ -63,20 +63,20 @@
       "Push-Ups"
     ],
     "prev": [
-      155.0,
-      15.0,
-      2156,
-      1781,
-      9,
+      150.0,
+      12.0,
+      2059,
+      1684,
+      5,
       20
     ],
     "curr": [
       150.0,
-      10.0,
-      2388,
-      2013,
-      20,
-      40
+      12.0,
+      2059,
+      1684,
+      5,
+      20
     ]
   },
   "goalTimeline": {

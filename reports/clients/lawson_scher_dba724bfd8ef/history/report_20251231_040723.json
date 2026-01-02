@@ -1,15 +1,15 @@
 {
   "dailySteps": 2000,
   "tokens": {
-    "REPORT_TITLE": "Goal Tracker",
-    "REPORT_SUBTITLE": "",
+    "REPORT_TITLE": "Progress Report",
+    "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.",
     "CLIENT_LABEL": "Lawson Scher",
     "REPORT_DATE": "12.31.25",
     "DAILY_STEPS": "2000",
     "HEADER_CHIP_1": "CUT",
     "HEADER_CHIP_2": "",
     "HEADER_CHIP_3": "XT",
-    "MACROS_TITLE": "Protein/Carb/Fat",
+    "MACROS_TITLE": "Macronutrient Breakdown",
     "PROTEIN_LABEL": "Protein",
     "PROTEIN_PCT": "32%",
     "CARB_LABEL": "Carbs",

@@ -1030,8 +1030,8 @@ class DietCalculator(QWidget):
         report_date = datetime.now().strftime("%m.%d.%y").lstrip("0").replace(".0", ".")
 
         tokens = {
-            "REPORT_TITLE": "Goal Tracker",
-            "REPORT_SUBTITLE": "",
+            "REPORT_TITLE": "Progress Report",
+            "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.",
             "CLIENT_LABEL": client_name,
             "REPORT_DATE": report_date,
             "DAILY_STEPS": str(steps_val),
@@ -1039,7 +1039,7 @@ class DietCalculator(QWidget):
             "HEADER_CHIP_2": "",
             "HEADER_CHIP_3": "XT",
 
-            "MACROS_TITLE": "Protein/Carb/Fat",
+            "MACROS_TITLE": "Macronutrient Breakdown",
             "PROTEIN_LABEL": "Protein",
             "PROTEIN_PCT": f"{p_pct}%",
             "CARB_LABEL": "Carbs",
