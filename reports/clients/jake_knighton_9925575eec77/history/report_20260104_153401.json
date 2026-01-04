@@ -11,11 +11,11 @@
     "HEADER_CHIP_3": "XT",
     "MACROS_TITLE": "Macronutrient Breakdown",
     "PROTEIN_LABEL": "Protein",
-    "PROTEIN_PCT": "33%",
+    "PROTEIN_PCT": "34%",
     "CARB_LABEL": "Carbs",
     "CARB_PCT": "42%",
     "FAT_LABEL": "Fat",
-    "FAT_PCT": "25%",
+    "FAT_PCT": "24%",
     "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.",
     "BARS_TITLE": "Composition changes",
     "TABLE_TITLE": "Dietary Changes",
@@ -24,13 +24,13 @@
     "TABLE_COL_3": "New",
     "ROW_1_LABEL": "Protein",
     "ROW_1_MID": "200 g",
-    "ROW_1_VALUE": "190 g",
+    "ROW_1_VALUE": "200 g",
     "ROW_2_LABEL": "Carbs",
     "ROW_2_MID": "248 g",
-    "ROW_2_VALUE": "239 g",
+    "ROW_2_VALUE": "248 g",
     "ROW_3_LABEL": "Fats",
     "ROW_3_MID": "66 g",
-    "ROW_3_VALUE": "64 g",
+    "ROW_3_VALUE": "66 g",
     "LINE_TITLE": "Goal Timeline",
     "AXIS_TOP": "Weight (lb)",
     "AXIS_BOTTOM": "Start",
@@ -39,7 +39,7 @@
   "macros": [
     {
       "key": "Protein",
-      "value": 33,
+      "value": 34,
       "color": "var(--orange)"
     },
     {
@@ -49,7 +49,7 @@
     },
     {
       "key": "Fat",
-      "value": 25,
+      "value": 24,
       "color": "var(--teal2)"
     }
   ],
@@ -65,9 +65,9 @@
       66.0
     ],
     "curr": [
-      190.0,
-      239.0,
-      64.0
+      200.0,
+      248.0,
+      66.0
     ]
   },
   "bars": {
@@ -88,17 +88,17 @@
       30
     ],
     "curr": [
-      190.0,
-      22.0,
-      2663,
-      2288,
-      15,
-      40
+      200.0,
+      25.0,
+      2760,
+      2385,
+      10,
+      30
     ]
   },
   "goalTimeline": {
-    "startWeight": 190.0,
-    "goalWeight": 180.0,
+    "startWeight": 200.0,
+    "goalWeight": 185.0,
     "estWeeksMin": 10,
     "estWeeksMax": 12,
     "rateLbPerWeek": 0.9,
