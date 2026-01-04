@@ -2350,10 +2350,10 @@ h2 {
   100% { opacity: 0.85; }
 }
 </style>
-<!-- REPORT_JSON_PATH: /Users/ryanraitz/Library/test-to-cal-v77/reports/report.json -->
+<!-- REPORT_JSON_PATH: /Users/ryanraitz/Library/test-to-cal-v77/reports/clients/clifton_shepherd_a434be722176/last_report.json -->
 
 <script>
-window.REPORT_DATA = {"dailySteps": 2000, "tokens": {"REPORT_TITLE": "Progress Report", "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.", "CLIENT_LABEL": "DJ Aranguren", "REPORT_DATE": "1.2.26", "DAILY_STEPS": "2000", "HEADER_CHIP_1": "CUT", "HEADER_CHIP_2": "", "HEADER_CHIP_3": "XT", "MACROS_TITLE": "Macronutrient Breakdown", "PROTEIN_LABEL": "Protein", "PROTEIN_PCT": "31%", "CARB_LABEL": "Carbs", "CARB_PCT": "43%", "FAT_LABEL": "Fat", "FAT_PCT": "26%", "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.", "BARS_TITLE": "Composition changes", "TABLE_TITLE": "Dietary Changes", "TABLE_COL_1": "Macro", "TABLE_COL_2": "Old", "TABLE_COL_3": "New", "ROW_1_LABEL": "Protein", "ROW_1_MID": "170 g", "ROW_1_VALUE": "170 g", "ROW_2_LABEL": "Carbs", "ROW_2_MID": "234 g", "ROW_2_VALUE": "234 g", "ROW_3_LABEL": "Fats", "ROW_3_MID": "62 g", "ROW_3_VALUE": "62 g", "LINE_TITLE": "Goal Timeline", "AXIS_TOP": "Weight (lb)", "AXIS_BOTTOM": "Start", "AXIS_RIGHT": "Goal"}, "macros": [{"key": "Protein", "value": 31, "color": "var(--orange)"}, {"key": "Carbs", "value": 43, "color": "var(--teal)"}, {"key": "Fat", "value": 26, "color": "var(--teal2)"}], "macroBars": {"labels": ["Protein", "Carbs", "Fat"], "prev": [170.0, 234.0, 62.0], "curr": [170.0, 234.0, 62.0]}, "bars": {"labels": ["Weight", "Bodyfat %", "TDEE", "Daily Calorie Goal", "Pull-Ups", "Push-Ups"], "prev": [170.0, 25.0, 2553, 2178, 1, 5], "curr": [170.0, 25.0, 2553, 2178, 1, 5]}, "goalTimeline": {"startWeight": 170.0, "goalWeight": 150.0, "estWeeksMin": 10, "estWeeksMax": 12, "rateLbPerWeek": 0.9, "variationPct": 0.2, "yTicks": [190, 187, 184, 181, 178, 172]}};
+window.REPORT_DATA = {"dailySteps": 4000, "tokens": {"REPORT_TITLE": "Progress Report", "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.", "CLIENT_LABEL": "Clifton Shepherd", "REPORT_DATE": "1.2.26", "DAILY_STEPS": "4000", "HEADER_CHIP_1": "CUT", "HEADER_CHIP_2": "", "HEADER_CHIP_3": "XT", "MACROS_TITLE": "Macronutrient Breakdown", "PROTEIN_LABEL": "Protein", "PROTEIN_PCT": "26%", "CARB_LABEL": "Carbs", "CARB_PCT": "46%", "FAT_LABEL": "Fat", "FAT_PCT": "28%", "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.", "BARS_TITLE": "Composition changes", "TABLE_TITLE": "Dietary Changes", "TABLE_COL_1": "Macro", "TABLE_COL_2": "Old", "TABLE_COL_3": "New", "ROW_1_LABEL": "Protein", "ROW_1_MID": "170 g", "ROW_1_VALUE": "160 g", "ROW_2_LABEL": "Carbs", "ROW_2_MID": "259 g", "ROW_2_VALUE": "280 g", "ROW_3_LABEL": "Fats", "ROW_3_MID": "69 g", "ROW_3_VALUE": "75 g", "LINE_TITLE": "Goal Timeline", "AXIS_TOP": "Weight (lb)", "AXIS_BOTTOM": "Start", "AXIS_RIGHT": "Goal"}, "macros": [{"key": "Protein", "value": 26, "color": "var(--orange)"}, {"key": "Carbs", "value": 46, "color": "var(--teal)"}, {"key": "Fat", "value": 28, "color": "var(--teal2)"}], "macroBars": {"labels": ["Protein", "Carbs", "Fat"], "prev": [170.0, 259.0, 69.0], "curr": [160.0, 280.0, 75.0]}, "bars": {"labels": ["Weight", "Bodyfat %", "TDEE", "Daily Calorie Goal", "Pull-Ups", "Push-Ups"], "prev": [170.0, 15.0, 2713, 2338, 15, 35], "curr": [160.0, 11.0, 2806, 2431, 20, 40]}, "goalTimeline": {"startWeight": 160.0, "goalWeight": 157.0, "estWeeksMin": 10, "estWeeksMax": 12, "rateLbPerWeek": 0.9, "variationPct": 0.2, "yTicks": [190, 187, 184, 181, 178, 172]}};
 </script>
 </head>
 <body>
@@ -3807,8 +3807,90 @@ bar.setAttribute("tabindex","0");
       }
 
       if(r){
-        if(r.fat_change_lb !== undefined)  _setRecompTileValue("Fat change", _fmtSignedLb(r.fat_change_lb));
-        if(r.lean_change_lb !== undefined) _setRecompTileValue("Lean mass", _fmtSignedLb(r.lean_change_lb));
+       
+        // If this is a FIRST report (no prior data), show a realistic 8-week estimate
+        // using the prescribed calorie delta (TDEE - CICO), steps, and training frequency.
+        const _numFrom = (v)=>{ const m=String(v??"").match(/-?\d+(?:\.\d+)?/); return m?parseFloat(m[0]):0; };
+        const wtPrevChk = (idxWeight>=0) ? _numFrom(prev[idxWeight]) : 0;
+        const bfPrevChk = (idxBf>=0) ? _numFrom(prev[idxBf]) : 0;
+        const hasPrevData = (wtPrevChk > 0) && (bfPrevChk > 0);
+
+        if(!hasPrevData){
+          const weeks = 8;
+          const now = new Date();
+          const eta = new Date(now.getTime());
+          eta.setDate(eta.getDate() + weeks*7);
+          const etaMonth = eta.toLocaleString("en-US", { month:"long" });
+
+          const tdee = (idxTdee>=0) ? _numFrom(curr[idxTdee]) : 0;
+          const cico = (idxCico>=0) ? _numFrom(curr[idxCico]) : 0;
+          // If we can infer delta, use it; otherwise assume a moderate deficit.
+          let deltaPerDay = (tdee>0 && cico>0) ? (cico - tdee) : -300;
+
+          // Pull steps from bars if present, otherwise fall back to 8k
+          const idxSteps = _findLabelIndex(labels, ["Daily Steps","Steps"]);
+          const steps = (idxSteps>=0) ? _numFrom(curr[idxSteps]) : 8000;
+
+          // Training sessions per week (GUI field). Prefer REPORT_DATA.inputs/meta if you pass it.
+          const sessions =
+            _numFrom(window.REPORT_DATA?.inputs?.training_sessions_per_week) ||
+            _numFrom(window.REPORT_DATA?.meta?.training_sessions_per_week) ||
+            _numFrom(window.REPORT_DATA?.training_sessions_per_week) ||
+            _numFrom((window.REPORT_DATA?.tokens||{}).TRAINING_SESSIONS_PER_WEEK) ||
+            3;
+
+          // Simple adherence/quality multiplier from steps + sessions (kept conservative)
+          let mult = 1.0;
+          if(steps >= 11000) mult += 0.08;
+          else if(steps >= 9000) mult += 0.04;
+          else if(steps <= 5000) mult -= 0.10;
+          if(sessions >= 4) mult += 0.05;
+          else if(sessions <= 2) mult -= 0.06;
+          mult = Math.max(0.75, Math.min(1.15, mult));
+
+          // Expected scale change over 8 weeks from energy delta.
+          const estScaleChange = (deltaPerDay * 7 * weeks / 3500) * mult; // negative = loss
+
+          // Split into fat vs lean (range) to keep it exciting but believable.
+          const losing = estScaleChange < 0;
+          const absChange = Math.abs(estScaleChange);
+
+          let fatLo, fatHi, leanLo, leanHi;
+
+          if(losing){
+            // In a deficit with training: most comes from fat, some lean gain possible (newer trainees / high protein)
+            fatHi = absChange * 0.95;
+            fatLo = absChange * 0.75;
+            const baseLean = 0.6 + 0.15*Math.max(0, sessions-2);
+            leanHi = Math.min(2.2, baseLean * (steps>=9000 ? 1.1 : 1.0));
+            leanLo = Math.max(0.3, leanHi * 0.45);
+          } else {
+            // In a surplus: lean gain drives most of it, fat gain is smaller if steps/training are good
+            leanHi = Math.min(5.0, absChange * 0.75);
+            leanLo = Math.max(1.0, leanHi * 0.55);
+            fatHi = absChange * 0.45;
+            fatLo = absChange * 0.20;
+            if(steps >= 9000) { fatHi *= 0.85; fatLo *= 0.85; }
+          }
+
+          const fatText = losing
+            ? `Est. -${_fmtNum(fatLo,{decimals:1})} to -${_fmtNum(fatHi,{decimals:1})} lb by ${etaMonth}`
+            : `Est. +${_fmtNum(fatLo,{decimals:1})} to +${_fmtNum(fatHi,{decimals:1})} lb by ${etaMonth}`;
+
+          const leanText = losing
+            ? `Est. +${_fmtNum(leanLo,{decimals:1})} to +${_fmtNum(leanHi,{decimals:1})} lb by ${etaMonth}`
+            : `Est. +${_fmtNum(leanLo,{decimals:1})} to +${_fmtNum(leanHi,{decimals:1})} lb by ${etaMonth}`;
+
+          _setRecompTileValue("Fat loss", fatText);
+          _setRecompTileValue("Lean muscle", leanText);
+
+          // Strength estimate: modest expectation (can be replaced once you have prev pull/push)
+          _setRecompTileValue("Strength", `Est. +${_fmtNum(6 + Math.max(0,sessions-2)*3,{decimals:0})}% by ${etaMonth}`);
+          return; // stop here so we don't compute deltas from missing prev data
+        }
+
+ if(r.fat_change_lb !== undefined)  _setRecompTileValue("Fat loss", _fmtSignedLb(r.fat_change_lb));
+        if(r.lean_change_lb !== undefined) _setRecompTileValue("Lean muscle", _fmtSignedLb(r.lean_change_lb));
         if(r.strength_pct !== undefined)   _setRecompTileValue("Strength", _fmtSignedPct(r.strength_pct));
       } else {
         // Compute from bars (fat + lean use weight + bf%, strength uses pull/push % change)
@@ -3829,8 +3911,8 @@ bar.setAttribute("tabindex","0");
         const pctVals = [pPull, pPush].filter(v => v !== null && v !== undefined && !Number.isNaN(v));
         const strength = pctVals.length ? (pctVals.reduce((a,b)=>a+b,0) / pctVals.length) : 0;
 
-        _setRecompTileValue("Fat change", _fmtSignedLb(fatChange));
-        _setRecompTileValue("Lean mass", _fmtSignedLb(leanChange));
+        _setRecompTileValue("Fat loss", _fmtSignedLb(fatChange));
+        _setRecompTileValue("Lean muscle", _fmtSignedLb(leanChange));
         _setRecompTileValue("Strength", _fmtSignedPct(strength));
       }
 
