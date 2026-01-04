@@ -3,34 +3,19 @@
   "tokens": {
     "REPORT_TITLE": "Progress Report",
     "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.",
-<<<<<<< HEAD
-    "CLIENT_LABEL": "David Capilouto",
-    "REPORT_DATE": "1.4.26",
-    "DAILY_STEPS": "3000",
-    "HEADER_CHIP_1": "GAIN",
-=======
     "CLIENT_LABEL": "Jake Knighton",
     "REPORT_DATE": "1.4.26",
     "DAILY_STEPS": "3000",
     "HEADER_CHIP_1": "CUT",
->>>>>>> f36f3d39e2fc6db61d176c7467247d8ab75b7595
     "HEADER_CHIP_2": "",
     "HEADER_CHIP_3": "XT",
     "MACROS_TITLE": "Macronutrient Breakdown",
     "PROTEIN_LABEL": "Protein",
-<<<<<<< HEAD
-    "PROTEIN_PCT": "35%",
-    "CARB_LABEL": "Carbs",
-    "CARB_PCT": "41%",
-    "FAT_LABEL": "Fat",
-    "FAT_PCT": "24%",
-=======
     "PROTEIN_PCT": "33%",
     "CARB_LABEL": "Carbs",
     "CARB_PCT": "42%",
     "FAT_LABEL": "Fat",
     "FAT_PCT": "25%",
->>>>>>> f36f3d39e2fc6db61d176c7467247d8ab75b7595
     "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.",
     "BARS_TITLE": "Composition changes",
     "TABLE_TITLE": "Dietary Changes",
@@ -38,16 +23,6 @@
     "TABLE_COL_2": "Old",
     "TABLE_COL_3": "New",
     "ROW_1_LABEL": "Protein",
-<<<<<<< HEAD
-    "ROW_1_MID": "167 g",
-    "ROW_1_VALUE": "156 g",
-    "ROW_2_LABEL": "Carbs",
-    "ROW_2_MID": "224 g",
-    "ROW_2_VALUE": "181 g",
-    "ROW_3_LABEL": "Fats",
-    "ROW_3_MID": "60 g",
-    "ROW_3_VALUE": "48 g",
-=======
     "ROW_1_MID": "200 g",
     "ROW_1_VALUE": "190 g",
     "ROW_2_LABEL": "Carbs",
@@ -56,7 +31,6 @@
     "ROW_3_LABEL": "Fats",
     "ROW_3_MID": "66 g",
     "ROW_3_VALUE": "64 g",
->>>>>>> f36f3d39e2fc6db61d176c7467247d8ab75b7595
     "LINE_TITLE": "Goal Timeline",
     "AXIS_TOP": "Weight (lb)",
     "AXIS_BOTTOM": "Start",
@@ -65,29 +39,17 @@
   "macros": [
     {
       "key": "Protein",
-<<<<<<< HEAD
-      "value": 35,
-=======
       "value": 33,
->>>>>>> f36f3d39e2fc6db61d176c7467247d8ab75b7595
       "color": "var(--orange)"
     },
     {
       "key": "Carbs",
-<<<<<<< HEAD
-      "value": 41,
-=======
       "value": 42,
->>>>>>> f36f3d39e2fc6db61d176c7467247d8ab75b7595
       "color": "var(--teal)"
     },
     {
       "key": "Fat",
-<<<<<<< HEAD
-      "value": 24,
-=======
       "value": 25,
->>>>>>> f36f3d39e2fc6db61d176c7467247d8ab75b7595
       "color": "var(--teal2)"
     }
   ],
@@ -98,16 +60,6 @@
       "Fat"
     ],
     "prev": [
-<<<<<<< HEAD
-      167.0,
-      224.0,
-      60.0
-    ],
-    "curr": [
-      156.0,
-      181.0,
-      48.0
-=======
       200.0,
       248.0,
       66.0
@@ -116,7 +68,6 @@
       190.0,
       239.0,
       64.0
->>>>>>> f36f3d39e2fc6db61d176c7467247d8ab75b7595
     ]
   },
   "bars": {
@@ -129,27 +80,6 @@
       "Push-Ups"
     ],
     "prev": [
-<<<<<<< HEAD
-      167.0,
-      13.0,
-      2474,
-      2099,
-      10,
-      40
-    ],
-    "curr": [
-      156.0,
-      10.0,
-      2160,
-      1785,
-      15,
-      45
-    ]
-  },
-  "goalTimeline": {
-    "startWeight": 156.0,
-    "goalWeight": 158.0,
-=======
       200.0,
       25.0,
       2760,
@@ -169,7 +99,6 @@
   "goalTimeline": {
     "startWeight": 190.0,
     "goalWeight": 180.0,
->>>>>>> f36f3d39e2fc6db61d176c7467247d8ab75b7595
     "estWeeksMin": 10,
     "estWeeksMax": 12,
     "rateLbPerWeek": 0.9,

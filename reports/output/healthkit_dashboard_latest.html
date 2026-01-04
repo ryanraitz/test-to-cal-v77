@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>HealthKit Dashboard Graph</title>
+  <style>
+
+/* ===== Screen-first responsive layout ===== */
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bgBot);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
+
+.page {
+  width: min(1200px, 100vw);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Print / PDF (A4) override ===== */
+
+@media print {
+  html, body {
+    width: 210mm;
+    height: 297mm;
+  }
+
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 14mm;
+    margin: 0;
+  }
+}
+
+  </style>
+  <style>
+    :root{
+      --bg:#3f5870;
+      --panel:#1f3a52;
+      --panel2:#1b344a;
+      --top:#1ea0f2;
+      --shadow:0 18px 40px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box;font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;}
+    body{margin:0;background:var(--bg);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px 18px;}
+    .frame{width:min(1100px, 96vw);border-radius:6px;overflow:hidden;box-shadow:var(--shadow);
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));}
+    .topbar{height:64px;background:var(--top);display:flex;align-items:center;padding:0 20px;gap:18px;}
+    .brand{display:flex;align-items:center;gap:10px;color:#0b2d4a;font-weight:800;letter-spacing:.5px;text-transform:lowercase;font-size:30px;opacity:.95;}
+    .top-right{margin-left:auto;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:16px;font-size:13px;}
+    .icon{width:18px;height:18px;opacity:.9;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;}
+    .icon svg{width:18px;height:18px;fill:rgba(255,255,255,.9)}
+    .nav{background:var(--panel2);height:62px;display:flex;align-items:flex-end;padding:10px 22px 0;gap:28px;color:rgba(255,255,255,.40);
+      border-bottom:1px solid rgba(255,255,255,.06);overflow:hidden;}
+    .nav .item{text-align:center;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:10px 8px 12px;position:relative;min-width:86px;opacity:.95;}
+    .nav .item svg{display:block;margin:0 auto 8px;opacity:.85}
+    .nav .item.active{color:rgba(255,255,255,.70);}
+    .nav .item.active:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#2c86cf;}
+    .content{background:var(--panel);padding:24px 28px 32px;}
+    .kpis{display:grid;grid-template-columns: repeat(5, minmax(0, 1fr));gap:14px;margin-bottom:12px;}
+    .kpi-card{background:rgba(0,0,0,.08);border-radius:6px;padding:14px 14px 12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);position:relative;overflow:hidden;min-height:78px;}
+    .kpi-card:before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:rgba(30,160,242,.75);}
+    .kpi-label{color:rgba(255,255,255,.35);font-weight:800;font-size:10px;letter-spacing:1px;text-transform:uppercase;}
+    .kpi-value{margin-top:6px;color:rgba(255,255,255,.88);font-weight:900;font-size:22px;letter-spacing:.2px;line-height:1.05;white-space:nowrap;}
+    .kpi-sub{margin-top:6px;color:rgba(255,255,255,.40);font-weight:700;font-size:11px;letter-spacing:.2px;}
+    @media (max-width: 980px){.kpis{grid-template-columns: repeat(2, minmax(0,1fr));}}
+    .legend{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:6px 0 10px 6px;user-select:none;}
+    .legend-item{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.65);}
+    .legend-swatch{width:18px;height:4px;border-radius:2px;box-shadow:0 0 6px rgba(255,255,255,.25);}
+    .chart-wrap{background:rgba(0,0,0,.06);border-radius:4px;padding:18px 18px 12px;box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);position:relative;}
+    .chart-title{position:absolute;top:18px;left:22px;color:rgba(255,255,255,.28);font-weight:700;letter-spacing:.4px;}
+    .years{position:absolute;top:20px;right:26px;font-weight:700;letter-spacing:.4px;font-size:16px;color:rgba(255,255,255,.35);display:flex;gap:28px;align-items:center;user-select:none;}
+    .years span.active{color:#1ea0f2;}
+    .canvas-host{height:420px;margin-top:34px;}
+    canvas{width:100%;height:100%;display:block;}
+    .hover-panel{position:absolute;top:72px;width:110px;height:290px;background:rgba(255,255,255,.06);border-radius:4px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);display:none;pointer-events:none;backdrop-filter: blur(2px);}
+    .hover-panel .hdr{margin:18px auto 10px;width:90px;text-align:center;color:rgba(255,255,255,.35);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;line-height:1.2;}
+    .hover-panel .val{text-align:center;margin-top:54px;font-weight:800;font-size:22px;color:rgba(255,255,255,.85);}
+    .hover-panel .val2{text-align:center;margin-top:58px;font-weight:800;font-size:20px;color:rgba(255,255,255,.85);}
+    .hover-panel .note{margin-top:18px;text-align:center;opacity:.55;color:rgba(255,255,255,.7);font-weight:800;font-size:11px;}
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="topbar">
+      <div class="brand"><span style="font-size:44px;line-height:1;margin-top:-4px;">g</span><span style="font-size:32px;line-height:1;margin-left:-6px;">iQ</span></div>
+      <div class="top-right">
+        <span style="opacity:.85;">Virgil Pana</span>
+        <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.9 1h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.58.23-1.13.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 7.48a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.83 14.52a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.3.6.22l2.39-.96c.5.4 1.05.71 1.63.94l.36 2.54c.04.24.25.42.49.42h3.8c.24 0 .45-.18.49-.42l.36-2.54c.58-.23 1.13-.54 1.63-.94l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg></span>
+        <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17-1.42 1.42A7 7 0 1 1 7.59 6.59L6.17 5.17A9 9 0 1 0 17.83 5.17z"/></svg></span>
+      </div>
+    </div>
+
+    <div class="nav">
+      <div class="item active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 13a8 8 0 0 1 16 0" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round"/><path d="M12 13l4-4" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="2" fill="rgba(255,255,255,.55)"/></svg>
+        DASHBOARD
+      </div>
+      <div class="item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3ZM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.99 1.97 3.45V19h6v-2.5C23 14.17 18.33 13 16 13Z" fill="rgba(255,255,255,.45)"/></svg>USERS</div>
+      <div class="item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 19V5" stroke="rgba(255,255,255,.45)" stroke-width="2"/><path d="M4 19h16" stroke="rgba(255,255,255,.45)" stroke-width="2"/><path d="M7 15l3-4 3 2 4-6" stroke="rgba(255,255,255,.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>TRENDS</div>
+      <div class="item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 19V9" stroke="rgba(255,255,255,.45)" stroke-width="2"/><path d="M12 19V5" stroke="rgba(255,255,255,.45)" stroke-width="2"/><path d="M19 19v-7" stroke="rgba(255,255,255,.45)" stroke-width="2"/></svg>STATS</div>
+    </div>
+
+    <div class="content">
+      <div class="kpis" id="kpis">
+        <div class="kpi-card"><div class="kpi-label">Days Logged</div><div class="kpi-value" id="kpiDays">--</div><div class="kpi-sub" id="kpiRange">--</div></div>
+        <div class="kpi-card"><div class="kpi-label">Daily Calories</div><div class="kpi-value" id="kpiCalories">--</div><div class="kpi-sub" id="kpiCaloriesSub">Goal -- vs Actual --</div></div>
+        <div class="kpi-card"><div class="kpi-label">Adherence</div><div class="kpi-value" id="kpiAdherence">--</div><div class="kpi-sub" id="kpiAdherenceSub">Goal hit -- days</div></div>
+        <div class="kpi-card"><div class="kpi-label">Protein</div><div class="kpi-value" id="kpiProtein">--</div><div class="kpi-sub" id="kpiProteinSub">Goal hit -- days</div></div>
+        <div class="kpi-card"><div class="kpi-label">Est. Weight Change</div><div class="kpi-value" id="kpiWeight">--</div><div class="kpi-sub" id="kpiWeightSub">From monthly calorie balance</div></div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><span class="legend-swatch" style="background:#33c8ff"></span>Weight Loss</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#ff6b6b"></span>Fat Loss</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#78e77c"></span>Lean Gain</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#f2d35f"></span>Adherence</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#ff9a64"></span>Protein Intake</div>
+        <div class="legend-item"><span class="legend-swatch" style="background:#b57cff"></span>Protein Trend</div>
+      </div>
+
+      <div class="chart-wrap" id="chartWrap">
+        <div class="chart-title">Anual Campaign Sales <span style="display:inline-block;transform:translateY(-1px);">▾</span></div>
+        <div class="years"><span>2012</span><span class="active">2013</span><span>2014</span></div>
+
+        <div class="hover-panel" id="hoverPanel">
+          <div class="hdr">DAILY DELTA<br/>(GOALS)</div>
+          <div class="val" id="hpVal1">--</div>
+          <div class="val2" id="hpVal2">--</div>
+          <div class="note" id="hpNote">&nbsp;</div>
+        </div>
+
+        <div class="canvas-host"><canvas id="chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const CAL_GOAL = 2255;
+  const PROTEIN_GOAL = 178;
+  const CLIENT_WEIGHT_LB = null;
+  const EMBEDDED_CSV = `Start Date,Type,Value
+2025-01-01 08:00:00,Step Count,11784
+2025-01-01 23:00:00,Active Energy (kcal),2318
+2025-01-01 22:00:00,Dietary Protein,186
+2025-01-01 22:00:00,Dietary Carbohydrates,239
+2025-01-01 22:00:00,Dietary Fat,55
+2025-01-02 08:00:00,Step Count,6462
+2025-01-02 23:00:00,Active Energy (kcal),1942
+2025-01-02 22:00:00,Dietary Protein,136
+2025-01-02 22:00:00,Dietary Carbohydrates,199
+2025-01-02 22:00:00,Dietary Fat,84
+2025-01-03 08:00:00,Step Count,6699
+2025-01-03 23:00:00,Active Energy (kcal),2185
+2025-01-03 22:00:00,Dietary Protein,152
+2025-01-03 22:00:00,Dietary Carbohydrates,287
+2025-01-03 22:00:00,Dietary Fat,48
+2025-01-04 08:00:00,Step Count,7279
+2025-01-04 23:00:00,Active Energy (kcal),2102
+2025-01-04 22:00:00,Dietary Protein,175
+2025-01-04 22:00:00,Dietary Carbohydrates,171
+2025-01-04 22:00:00,Dietary Fat,77
+2025-01-05 08:00:00,Step Count,10280
+2025-01-05 23:00:00,Active Energy (kcal),2476
+2025-01-05 22:00:00,Dietary Protein,185
+2025-01-05 22:00:00,Dietary Carbohydrates,298
+2025-01-05 22:00:00,Dietary Fat,66
+2025-01-06 08:00:00,Step Count,9262
+2025-01-06 23:00:00,Active Energy (kcal),1954
+2025-01-06 22:00:00,Dietary Protein,163
+2025-01-06 22:00:00,Dietary Carbohydrates,216
+2025-01-06 22:00:00,Dietary Fat,56
+`;
+
+  function fmtInt(n){return Math.round(n).toLocaleString();}
+  function fmtPct(p){return (Math.round(p*10)/10).toFixed(1)+'%';}
+  function fmtSigned(n, d=1){const v=Math.round(n*Math.pow(10,d))/Math.pow(10,d); return (v>0?'+':'')+v.toFixed(d);}
+
+  function parseCsv(text){
+    const lines = text.trim().split(/?
+/);
+    if (lines.length < 2) return [];
+    const header = lines[0].split(',').map(s=>s.trim());
+    const idxStart = header.findIndex(h => h.toLowerCase() === 'start date');
+    const idxType  = header.findIndex(h => h.toLowerCase() === 'type');
+    const idxVal   = header.findIndex(h => h.toLowerCase() === 'value');
+    if (idxStart<0||idxType<0||idxVal<0) return [];
+    const rows=[];
+    for (let i=1;i<lines.length;i++){ 
+      const parts = lines[i].split(',');
+      if (parts.length < 3) continue;
+      rows.push({start: parts[idxStart], type: parts[idxType], value: Number(parts[idxVal])});
+    }
+    return rows;
+  }
+
+  function groupByDay(rows){
+    const byDay = new Map();
+    for (const r of rows){
+      const date = String(r.start).slice(0,10);
+      if (!byDay.has(date)) byDay.set(date, {calories:null, protein:null});
+      const o = byDay.get(date);
+      const t = String(r.type||'').trim();
+      const v = Number(r.value||0);
+      if (t === 'Active Energy (kcal)' || t === 'Active Energy') o.calories = (o.calories||0)+v;
+      else if (t === 'Dietary Protein') o.protein = (o.protein||0)+v;
+    }
+    const dates = Array.from(byDay.keys()).sort();
+    if (!dates.length) return {labels:[], daily:[]};
+    const min = new Date(dates[0]+'T00:00:00');
+    const max = new Date(dates[dates.length-1]+'T00:00:00');
+    const labels=[], daily=[];
+    for (let d=new Date(min); d<=max; d.setDate(d.getDate()+1)){
+      const iso=d.toISOString().slice(0,10);
+      const mm=String(d.getMonth()+1).padStart(2,'0');
+      const dd=String(d.getDate()).padStart(2,'0');
+      labels.push(mm+'/'+dd);
+      const val = byDay.get(iso) || {calories:null, protein:null};
+      daily.push({date:iso, ...val});
+    }
+    return {labels, daily};
+  }
+
+  function fillMissingLinear(arr){
+    const out = arr.slice();
+    const n = out.length;
+    let first = -1;
+    for (let i=0;i<n;i++){ if (out[i]!=null && !isNaN(out[i])) { first=i; break; } }
+    if (first === -1) return out.map(_=>0);
+    for (let i=0;i<first;i++) out[i]=out[first];
+    let lastKnown = first;
+    for (let i=first+1;i<n;i++){ 
+      if (out[i]==null || isNaN(out[i])) continue;
+      const a = out[lastKnown], b = out[i];
+      const gap = i - lastKnown;
+      for (let k=1;k<gap;k++) out[lastKnown+k] = a + (b-a)*(k/gap);
+      lastKnown = i;
+    }
+    for (let i=lastKnown+1;i<n;i++) out[i]=out[lastKnown];
+    return out;
+  }
+
+  function buildSeries(labels, daily){
+    const series = {
+      weightLoss: new Array(daily.length).fill(null),
+      fatLoss: new Array(daily.length).fill(null),
+      leanGain: new Array(daily.length).fill(null),
+      adherence: new Array(daily.length).fill(null),
+      proteinIntake: new Array(daily.length).fill(null),
+      proteinTrend: new Array(daily.length).fill(null),
+    };
+
+    let cumBalance=0, logged=0, hit=0;
+    const dailyCal = [];
+    const dailyPro = [];
+    const goalHit = [];
+
+    for (let i=0;i<daily.length;i++){ 
+      const c=daily[i].calories;
+      const p=daily[i].protein;
+      const cOk = (c!=null && !isNaN(c));
+      const pOk = (p!=null && !isNaN(p));
+      dailyCal.push(cOk? c : null);
+      dailyPro.push(pOk? p : null);
+
+      if (!cOk) {
+        goalHit.push(null);
+        continue;
+      }
+
+      const deficit = CAL_GOAL - c;
+      cumBalance += deficit;
+      logged++;
+
+      const within = Math.abs(deficit) <= (CAL_GOAL*0.10);
+      if (within) hit++;
+      goalHit.push(within);
+
+      const lbsChange = cumBalance / 3500.0;
+      const adhPct = (hit/logged)*100;
+
+      const proRatio = pOk && PROTEIN_GOAL>0 ? Math.min(1.2, Math.max(0.6, p/PROTEIN_GOAL)) : 1.0;
+      let fat=0, lean=0;
+      if (cumBalance>=0){ 
+        fat = Math.max(0,lbsChange) * (0.78 + (proRatio-1)*0.08);
+        lean = Math.max(0,lbsChange) * (0.12 * proRatio);
+      } else {
+        const gain = Math.abs(lbsChange);
+        lean = gain * (0.55 + (proRatio-1)*0.15);
+        fat = 0;
+      }
+
+      const clamp = x => Math.max(0, Math.min(520, x));
+      series.weightLoss[i] = clamp(320 - (lbsChange*55) + (adhPct-80)*0.6);
+      series.fatLoss[i]    = clamp(210 + (fat*85));
+      series.leanGain[i]   = clamp( 25 + (lean*95));
+      series.adherence[i]  = clamp(adhPct*2.0);
+      series.proteinIntake[i] = pOk ? clamp(p) : null;
+    }
+
+    const win=7;
+    for (let i=0;i<daily.length;i++){ 
+      let sum=0,n=0;
+      for (let j=Math.max(0,i-win+1); j<=i; j++){ 
+        const v=series.proteinIntake[j];
+        if (v==null) continue;
+        sum+=v; n++;
+      }
+      series.proteinTrend[i]= n? (sum/n) : null;
+    }
+
+    return {series, dailyCal, dailyPro, goalHit};
+  }
+
+  function drawChart(canvas, labels, datasets, hoverIndex){
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.round(rect.width*dpr);
+    canvas.height = Math.round(rect.height*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const W = rect.width, H = rect.height;
+    const padL = 52, padR = 18, padT = 10, padB = 44;
+    const plotX = padL, plotY = padT, plotW = W - padL - padR, plotH = H - padT - padB;
+
+    ctx.lineWidth = 1;
+    for (let v=0; v<=520; v+=50){
+      const y = plotY + plotH - (v/520)*plotH;
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.beginPath(); ctx.moveTo(plotX, y); ctx.lineTo(plotX+plotW, y); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      ctx.font = '700 11px Inter, system-ui, sans-serif';
+      const label = (v===0) ? '0' : (v)+'k';
+      ctx.fillText(label, 10, y+4);
+    }
+
+    const step = Math.max(1, Math.floor(labels.length/12));
+    for (let i=0;i<labels.length;i+=step){
+      const x = plotX + (labels.length===1?0:(i/(labels.length-1))*plotW);
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      ctx.beginPath(); ctx.moveTo(x, plotY); ctx.lineTo(x, plotY+plotH); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.20)';
+      ctx.font = '700 11px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(labels[i], x, plotY+plotH+28);
+    }
+    ctx.textAlign='left';
+
+    if (hoverIndex != null){
+      const x = plotX + (labels.length===1?0:(hoverIndex/(labels.length-1))*plotW);
+      const bandW = 86;
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.fillRect(x-bandW/2, plotY, bandW, plotH);
+    }
+
+    function drawSegment(segPts, stroke, width){
+      ctx.beginPath();
+      ctx.moveTo(segPts[0].x, segPts[0].y);
+      for (let i=0;i<segPts.length-1;i++){ 
+        const p0 = segPts[Math.max(0,i-1)];
+        const p1 = segPts[i];
+        const p2 = segPts[i+1];
+        const p3 = segPts[Math.min(segPts.length-1,i+2)];
+        const cp1x = p1.x + (p2.x - p0.x)/6;
+        const cp1y = p1.y + (p2.y - p0.y)/6;
+        const cp2x = p2.x - (p3.x - p1.x)/6;
+        const cp2y = p2.y - (p3.y - p1.y)/6;
+        ctx.bezierCurveTo(cp1x,cp1y,cp2x,cp2y,p2.x,p2.y);
+      }
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    }
+
+    function toPoints(arr){
+      return arr.map((v,i)=>{
+        if (v==null || isNaN(v)) return null;
+        const x = plotX + (labels.length===1?0:(i/(labels.length-1))*plotW);
+        const y = plotY + plotH - (v/520)*plotH;
+        return {x,y};
+      });
+    }
+
+    for (const ds of datasets){
+      const pts = toPoints(ds.data);
+      let seg = [];
+      for (const p of pts){
+        if (p==null) {
+          if (seg.length>1) drawSegment(seg, ds.color, 4);
+          seg=[];
+        } else {
+          seg.push(p);
+        }
+      }
+      if (seg.length>1) drawSegment(seg, ds.color, 4);
+    }
+  }
+
+  function init(){
+    const rows = parseCsv(EMBEDDED_CSV);
+    const grouped = groupByDay(rows);
+    const labels = grouped.labels;
+    const daily = grouped.daily;
+    const built = buildSeries(labels, daily);
+
+    const datasets = [
+      {name:'Weight Loss', color:'#33c8ff', data: fillMissingLinear(built.series.weightLoss)},
+      {name:'Fat Loss', color:'#ff6b6b', data: fillMissingLinear(built.series.fatLoss)},
+      {name:'Lean Gain', color:'#78e77c', data: fillMissingLinear(built.series.leanGain)},
+      {name:'Adherence', color:'#f2d35f', data: fillMissingLinear(built.series.adherence)},
+      {name:'Protein Intake', color:'#ff9a64', data: fillMissingLinear(built.series.proteinIntake)},
+      {name:'Protein Trend', color:'#b57cff', data: fillMissingLinear(built.series.proteinTrend)},
+    ];
+
+    const canvas = document.getElementById('chart');
+    const wrap = document.getElementById('chartWrap');
+    const panel = document.getElementById('hoverPanel');
+
+    let hoverIndex = null;
+
+    // KPIs
+    const logged = built.dailyCal.filter(v=>v!=null).length;
+    const totalActual = built.dailyCal.filter(v=>v!=null).reduce((a,b)=>a+b,0);
+    const totalGoal = logged * CAL_GOAL;
+    const hitDays = built.goalHit.filter(v=>v===true).length;
+    const adherencePct = logged ? (hitDays/logged)*100 : 0;
+
+    const protVals = built.dailyPro.filter(v=>v!=null);
+    const avgProtein = protVals.length ? protVals.reduce((a,b)=>a+b,0)/protVals.length : 0;
+    const proteinHitDays = (PROTEIN_GOAL>0) ? built.dailyPro.filter(v=>v!=null && v>=PROTEIN_GOAL).length : 0;
+
+    const monthLbsChange = logged ? ((totalGoal - totalActual)/3500.0) : 0;
+
+    document.getElementById('kpiDays').textContent = `${logged} / ${labels.length}`;
+    document.getElementById('kpiRange').textContent = labels.length ? `${labels[0]} – ${labels[labels.length-1]}` : '--';
+
+    document.getElementById('kpiCalories').textContent = `${fmtInt(totalActual)}`;
+    document.getElementById('kpiCaloriesSub').textContent = `Goal ${fmtInt(totalGoal)} vs Actual ${fmtInt(totalActual)}`;
+
+    document.getElementById('kpiAdherence').textContent = fmtPct(adherencePct);
+    document.getElementById('kpiAdherenceSub').textContent = `Goal hit ${hitDays} days`;
+
+    document.getElementById('kpiProtein').textContent = `${fmtInt(avgProtein)} g/day`;
+    document.getElementById('kpiProteinSub').textContent = `Goal hit ${proteinHitDays} days`;
+
+    document.getElementById('kpiWeight').textContent = `${fmtSigned(monthLbsChange,1)} lb`;
+    document.getElementById('kpiWeightSub').textContent = `From monthly calorie balance (client)`;
+
+    function render(){
+      drawChart(canvas, labels, datasets, hoverIndex);
+      if (hoverIndex==null) panel.style.display='none';
+    }
+
+    function setPanel(i){
+      if (i==null) {panel.style.display='none'; return;}
+      const cal = built.dailyCal[i];
+      const pro = built.dailyPro[i];
+      const diff = (cal==null) ? null : (CAL_GOAL - cal);
+      const pdiff = (pro==null || PROTEIN_GOAL<=0) ? null : (pro - PROTEIN_GOAL);
+      document.getElementById('hpVal1').textContent = diff==null ? '--' : ((diff>=0?'+':'') + Math.round(diff));
+      document.getElementById('hpVal2').textContent = pdiff==null ? '--' : ((pdiff>=0?'+':'') + Math.round(pdiff));
+      const hit = built.goalHit[i];
+      document.getElementById('hpNote').textContent = (hit==null) ? '' : (hit ? 'Goal achieved' : 'Goal missed');
+
+      const rect = canvas.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      const padL=52, padR=18;
+      const plotW = rect.width - padL - padR;
+      const x = padL + (labels.length===1?0:(i/(labels.length-1))*plotW);
+
+      const bandW = 86, panelW = 110;
+      let left = (rect.left - wrapRect.left) + x + (bandW/2) - (panelW/2);
+      left = Math.max(18, Math.min(left, wrapRect.width - panelW - 18));
+      panel.style.left = left + 'px';
+      panel.style.display = 'block';
+    }
+
+    function pickIndex(clientX){
+      const rect = canvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const padL=52, padR=18;
+      const plotW = rect.width - padL - padR;
+      const px = Math.max(0, Math.min(plotW, x - padL));
+      if (labels.length<=1) return 0;
+      return Math.round((px/plotW) * (labels.length-1));
+    }
+
+    canvas.addEventListener('mousemove', (e)=>{
+      hoverIndex = pickIndex(e.clientX);
+      render();
+      setPanel(hoverIndex);
+    });
+    canvas.addEventListener('mouseleave', ()=>{hoverIndex=null; render();});
+    window.addEventListener('resize', ()=>render());
+
+    render();
+  }
+
+  init();
+</script>
+</body>
+</html>
