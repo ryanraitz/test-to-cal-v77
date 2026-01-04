@@ -871,7 +871,7 @@ class DietCalculator(QWidget):
             except Exception:
                 pass
 
-        dlg = HealthkitTotalsDialog(parent=self, on_result=_append)
+        dlg = HealthkitTotalsDialog(parent=self, on_result=_append, selected_prev_report_path=self.selected_prev_report_path)
         dlg.setModal(False)
         dlg.show()
 
