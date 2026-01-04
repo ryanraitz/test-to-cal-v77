@@ -2505,6 +2505,22 @@ h2 {
 }
 
 </style>
+
+<style>
+/* =====================================================
+   Dietary Changes header — reuse section-title styling
+   WITHOUT altering layout height
+   ===================================================== */
+#card-macros .dietary-inline h2{
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: inherit;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
 </head>
 <body>
 <div id="viewport"><div id="pageWrap"><div class="page" id="page">
@@ -2738,77 +2754,6 @@ h2 {
 
 <script>
 /* ===== fitToViewport(): scale the entire 1620x1620 report to any window size ===== */
-(function(){
-  const DESIGN_W = 1620;
-  const DESIGN_H = 1620;
-
-  function fitToViewport(){
-    const qs = new URLSearchParams(window.location.search);
-    const exporting = qs.get("export") === "1"; // used by export.py
-    const page = document.getElementById("page");
-    const wrap = document.getElementById("pageWrap");
-    const vp   = document.getElementById("viewport");
-    if(!page || !wrap || !vp) return;
-
-    // During export: lock to exact design pixels (no scaling)
-    if(exporting){
-      page.style.transform = "scale(1)";
-      page.style.width  = DESIGN_W + "px";
-      page.style.height = DESIGN_H + "px";
-      wrap.style.width  = DESIGN_W + "px";
-      wrap.style.height = DESIGN_H + "px";
-      vp.style.overflow = "hidden";
-      return;
-    }
-
-    const pad = (window.innerWidth <= 820) ? 14 : 24;
-    const vw = Math.max(320, window.innerWidth  - pad*2);
-    const vh = Math.max(320, window.innerHeight - pad*2);
-
-    // --- Mobile mode: switch to true responsive layout instead of shrinking to ~0.22 on phones
-    const isMobile = window.innerWidth <= 700;
-    document.body.classList.toggle("mobile", isMobile);
-
-    if(isMobile){
-      // Let CSS handle layout; keep transforms off so text is readable
-      page.style.transform = "scale(1)";
-      page.style.width  = "100%";
-      page.style.height = "auto";
-      wrap.style.width  = "100%";
-      wrap.style.height = "auto";
-      vp.style.overflow = "visible";
-      return;
-    }
-
-    // Scale down to fit (desktop/tablet); never scale above 1
-    let s = 1;
-
-// scale UP only on larger screens (never shrink)
-if (vw > DESIGN_W && vh > DESIGN_H) {
-  s = Math.min(vw / DESIGN_W, vh / DESIGN_H, 1.25);
-}
-page.style.width  = DESIGN_W + "px";
-    page.style.height = DESIGN_H + "px";
-    page.style.transform = "scale(" + s.toFixed(4) + ")";
-
-    // Transform doesn't affect layout, so we size the wrapper to the scaled box for true centering
-    wrap.style.width  = Math.round(DESIGN_W * s) + "px";
-    wrap.style.height = Math.round(DESIGN_H * s) + "px";
-  }
-
-  // Make it available (export.py calls it once)
-  window.fitToViewport = fitToViewport;
-
-  // Debounced resize
-  let raf = null;
-  function schedule(){
-    if(raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(fitToViewport);
-  }
-  window.addEventListener("resize", schedule);
-  window.addEventListener("orientationchange", schedule);
-  document.addEventListener("DOMContentLoaded", fitToViewport);
-})();
 </script>
 
 <script>
@@ -4659,6 +4604,57 @@ window.__syncMacroUI = function(){
   };
 
   document.addEventListener("DOMContentLoaded", setMacroBarColorsFromDonut);
+})();
+</script>
+
+
+<script>
+/* =====================================================
+   FINAL SCALER (WIDTH-ONLY, NO HEIGHT COUPLING)
+   - Never shrinks due to content height
+   - Scales up only on wide screens
+   ===================================================== */
+(function(){
+  const DESIGN_W = 1620;
+  const MAX_SCALE = 1.25;
+
+  function applyScale(){
+    const page = document.getElementById("page");
+    const wrap = document.getElementById("pageWrap");
+    const vp   = document.getElementById("viewport");
+    if(!page || !wrap || !vp) return;
+
+    const isMobile = window.innerWidth <= 700;
+    document.body.classList.toggle("mobile", isMobile);
+
+    if(isMobile){
+      page.style.transform = "scale(1)";
+      page.style.width = "100%";
+      page.style.height = "auto";
+      wrap.style.width = "100%";
+      wrap.style.height = "auto";
+      vp.style.overflow = "visible";
+      return;
+    }
+
+    const vw = window.innerWidth;
+    let s = 1;
+    if(vw > DESIGN_W){
+      s = Math.min(vw / DESIGN_W, MAX_SCALE);
+    }
+
+    page.style.width = DESIGN_W + "px";
+    page.style.height = "auto";
+    page.style.transform = `scale(${s.toFixed(4)})`;
+
+    wrap.style.width = Math.round(DESIGN_W * s) + "px";
+    wrap.style.height = "auto";
+    vp.style.overflow = "visible";
+  }
+
+  window.addEventListener("resize", applyScale);
+  window.addEventListener("orientationchange", applyScale);
+  document.addEventListener("DOMContentLoaded", applyScale);
 })();
 </script>
 
