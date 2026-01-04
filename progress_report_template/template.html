@@ -2,7 +2,6 @@
 
 <html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>{{REPORT_TITLE}
@@ -2506,15 +2505,6 @@ h2 {
 }
 
 </style>
-
-<style>
-  html, body {
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-  }
-</style>
-
 </head>
 <body>
 <div id="viewport"><div id="pageWrap"><div class="page" id="page">
@@ -2791,9 +2781,13 @@ h2 {
     }
 
     // Scale down to fit (desktop/tablet); never scale above 1
-    let s = Math.min(vw / DESIGN_W, vh / DESIGN_H, 1);
+    let s = 1;
 
-    page.style.width  = DESIGN_W + "px";
+// scale UP only on larger screens (never shrink)
+if (vw > DESIGN_W && vh > DESIGN_H) {
+  s = Math.min(vw / DESIGN_W, vh / DESIGN_H, 1.25);
+}
+page.style.width  = DESIGN_W + "px";
     page.style.height = DESIGN_H + "px";
     page.style.transform = "scale(" + s.toFixed(4) + ")";
 

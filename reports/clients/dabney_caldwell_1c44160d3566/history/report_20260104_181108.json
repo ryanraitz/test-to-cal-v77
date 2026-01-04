@@ -1,21 +1,21 @@
 {
-  "dailySteps": 3700,
+  "dailySteps": 3800,
   "tokens": {
     "REPORT_TITLE": "Progress Report",
     "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.",
     "CLIENT_LABEL": "Dabney Caldwell",
     "REPORT_DATE": "1.4.26",
-    "DAILY_STEPS": "3700",
+    "DAILY_STEPS": "3800",
     "HEADER_CHIP_1": "CUT",
     "HEADER_CHIP_2": "",
     "HEADER_CHIP_3": "XT",
     "MACROS_TITLE": "Macronutrient Breakdown",
     "PROTEIN_LABEL": "Protein",
-    "PROTEIN_PCT": "37%",
+    "PROTEIN_PCT": "38%",
     "CARB_LABEL": "Carbs",
     "CARB_PCT": "39%",
     "FAT_LABEL": "Fat",
-    "FAT_PCT": "24%",
+    "FAT_PCT": "23%",
     "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.",
     "BARS_TITLE": "Composition changes",
     "TABLE_TITLE": "Dietary Changes",
@@ -24,13 +24,13 @@
     "TABLE_COL_3": "New",
     "ROW_1_LABEL": "Protein",
     "ROW_1_MID": "120 g",
-    "ROW_1_VALUE": "110 g",
+    "ROW_1_VALUE": "120 g",
     "ROW_2_LABEL": "Carbs",
     "ROW_2_MID": "121 g",
-    "ROW_2_VALUE": "116 g",
+    "ROW_2_VALUE": "121 g",
     "ROW_3_LABEL": "Fats",
     "ROW_3_MID": "32 g",
-    "ROW_3_VALUE": "31 g",
+    "ROW_3_VALUE": "32 g",
     "LINE_TITLE": "Goal Timeline",
     "AXIS_TOP": "Weight (lb)",
     "AXIS_BOTTOM": "Start",
@@ -39,7 +39,7 @@
   "macros": [
     {
       "key": "Protein",
-      "value": 37,
+      "value": 38,
       "color": "var(--orange)"
     },
     {
@@ -49,7 +49,7 @@
     },
     {
       "key": "Fat",
-      "value": 24,
+      "value": 23,
       "color": "var(--teal2)"
     }
   ],
@@ -65,9 +65,9 @@
       32.0
     ],
     "curr": [
-      110.0,
-      116.0,
-      31.0
+      120.0,
+      121.0,
+      32.0
     ]
   },
   "bars": {
@@ -88,17 +88,17 @@
       30
     ],
     "curr": [
-      110.0,
-      12.0,
-      1555,
-      1180,
-      10,
-      25
+      120.0,
+      16.0,
+      1629,
+      1254,
+      5,
+      30
     ]
   },
   "goalTimeline": {
-    "startWeight": 110.0,
-    "goalWeight": 107.0,
+    "startWeight": 120.0,
+    "goalWeight": 116.0,
     "estWeeksMin": 10,
     "estWeeksMax": 12,
     "rateLbPerWeek": 0.9,

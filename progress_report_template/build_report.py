@@ -102,11 +102,11 @@ def main() -> None:
     print("Wrote:", str(OUTPUT_DIR / "report-data.js"))
 
     # Optional export
-    if EXPORT_PY.exists():
-        try:
-            subprocess.run([sys.executable, str(EXPORT_PY), str(OUTPUT_HTML), str(OUTPUT_DIR)], cwd=str(SCRIPT_DIR), check=False)
-        except Exception as e:
-            print("(Non-fatal) export.py failed:", e)
+    # if EXPORT_PY.exists():
+    #    try:
+    #        subprocess.run([sys.executable, str(EXPORT_PY), str(OUTPUT_HTML), str(OUTPUT_DIR)], cwd=str(SCRIPT_DIR), check=False)
+    #    except Exception as e:
+    #        print("(Non-fatal) export.py failed:", e)
 
 
 if __name__ == "__main__":

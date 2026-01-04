@@ -320,7 +320,7 @@ class DietCalculator(QWidget):
 
         self.pdf_button = QPushButton("Generate")
         self.pdf_button.clicked.connect(self.on_pdf_button_clicked)
-        self.pdf_button.hide()
+        # self.pdf_button.hide()
 
 
         self.prev_report_button = QPushButton("Previous Report")
