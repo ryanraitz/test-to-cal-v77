@@ -76,3 +76,47 @@ svg {
   height: 100%;
   max-width: 100%;
 }
+
+
+/* === Full-Window Layout + Intelligent Scaling (Tuned) ===
+   Purpose: Make the HTML report feel "full-screen" on large monitors while
+   staying readable on laptops. Safe: overrides only layout sizing rules.
+*/
+:root{
+  font-size: clamp(14px, 1.0vw, 18px);
+}
+
+#viewport, #pageWrap{
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.page{
+  width: min(1600px, 100vw);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: clamp(16px, 2vw, 36px);
+  box-sizing: border-box;
+}
+
+/* Give charts more vertical space when available */
+.chart-line, .donutWrap, .bars-wrap{
+  min-height: clamp(240px, 32vh, 420px);
+}
+
+/* Subtle "cinematic" scale-up on big screens */
+@media (min-width: 1600px){
+  .page{
+    transform: scale(1.06);
+    transform-origin: top center;
+  }
+}
+@media (min-width: 1920px){
+  .page{
+    transform: scale(1.12);
+  }
+}
+
