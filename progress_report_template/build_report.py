@@ -37,151 +37,9 @@ EXPORT_PY = SCRIPT_DIR / "export.py"
 
 # ------------------------- parsing helpers -------------------------
 
-def _num(x: Any, default: Optional[float] = None) -> Optional[float]:
-    if x is None:
-        return default
-    if isinstance(x, (int, float)):
-        return float(x)
-    if isinstance(x, str):
-        s = x.strip()
-        if not s:
-            return default
-        s = s.replace(",", "")
-        s = re.sub(r"[^0-9\.\-]+", "", s)
-        if not s or s in {"-", ".", "-."}:
-            return default
-        try:
-            return float(s)
-        except Exception:
-            return default
-    return default
-
-def _clamp(v: float, lo: float, hi: float) -> float:
-    return max(lo, min(hi, v))
-
-def _fmt_signed_lb(x: float) -> str:
-    sign = "+" if x > 0 else ""
-    return f"{sign}{x:.1f} lb"
-
-def _fmt_signed_pct(x: float) -> str:
-    sign = "+" if x > 0 else ""
-    return f"{sign}{x:.0f}%"
-
-def _pretty_int(n: Optional[float], fallback: str = "—") -> str:
-    if n is None or (isinstance(n, float) and math.isnan(n)):
-        return fallback
-    try:
-        return f"{int(round(float(n))):,}"
-    except Exception:
-        return fallback
 
 
-# ------------------------- bars mapping -------------------------
 
-def _find_label_index(labels: List[Any], candidates: List[str]) -> int:
-    cand = {c.strip().lower(): True for c in candidates}
-    for i, raw in enumerate(labels or []):
-        s = str(raw).strip().lower()
-        if s in cand:
-            return i
-    return -1
-
-def _get_bars_triplet(report: Dict[str, Any]) -> Tuple[List[Any], List[Any], List[Any]]:
-    bars = report.get("bars")
-    if isinstance(bars, dict):
-        labels = bars.get("labels") or []
-        prev = bars.get("prev") or []
-        curr = bars.get("curr") or []
-        if isinstance(labels, list) and isinstance(prev, list) and isinstance(curr, list):
-            return labels, prev, curr
-    return [], [], []
-
-
-# ------------------------- strength model -------------------------
-
-def compute_strength_pct(labels: List[Any], prev: List[Any], curr: List[Any]) -> float:
-    idx_pull = _find_label_index(labels, ["Pull-Ups", "Pullups", "Pull Ups"])
-    idx_push = _find_label_index(labels, ["Push-Ups", "Pushups", "Push Ups"])
-    eps = 3.0
-
-    p0 = _num(prev[idx_pull], 0.0) if 0 <= idx_pull < len(prev) else 0.0
-    p1 = _num(curr[idx_pull], 0.0) if 0 <= idx_pull < len(curr) else 0.0
-    s0 = _num(prev[idx_push], 0.0) if 0 <= idx_push < len(prev) else 0.0
-    s1 = _num(curr[idx_push], 0.0) if 0 <= idx_push < len(curr) else 0.0
-
-    pull_rel = (p1 + eps) / (p0 + eps)
-    push_rel = (s1 + eps) / (s0 + eps)
-    strength_rel = 0.6 * pull_rel + 0.4 * push_rel
-    return (strength_rel - 1.0) * 100.0
-
-
-# ------------------------- recomp calculations -------------------------
-
-def compute_fat_loss_lb(labels: List[Any], prev: List[Any], curr: List[Any]) -> Tuple[float, bool]:
-    idx_bfm = _find_label_index(labels, ["Body Fat Mass", "BFM", "Body Fat Mass (lb)", "Body Fat Mass (lbs)"])
-    if 0 <= idx_bfm < len(prev) and 0 <= idx_bfm < len(curr):
-        b0 = _num(prev[idx_bfm], None)
-        b1 = _num(curr[idx_bfm], None)
-        if b0 is not None and b1 is not None:
-            return (b1 - b0), True
-
-    idx_w = _find_label_index(labels, ["Weight", "Bodyweight"])
-    idx_bf = _find_label_index(labels, ["Bodyfat %", "Body Fat %", "Bodyfat", "Body Fat"])
-
-    w0 = _num(prev[idx_w], 0.0) if 0 <= idx_w < len(prev) else 0.0
-    w1 = _num(curr[idx_w], 0.0) if 0 <= idx_w < len(curr) else 0.0
-    bf0 = _num(prev[idx_bf], None) if 0 <= idx_bf < len(prev) else None
-    bf1 = _num(curr[idx_bf], None) if 0 <= idx_bf < len(curr) else None
-
-    if bf0 is not None and bf1 is not None and 2.0 <= bf0 <= 60.0 and 2.0 <= bf1 <= 60.0 and w0 > 0 and w1 > 0:
-        fat0 = w0 * (bf0 / 100.0)
-        fat1 = w1 * (bf1 / 100.0)
-        return (fat1 - fat0), False
-
-    return (0.0, False)
-
-def compute_estimated_lean_muscle_lb(labels: List[Any], prev: List[Any], curr: List[Any], strength_pct: float, fat_change_lb: float) -> Tuple[float, bool]:
-    idx_smm = _find_label_index(labels, ["Skeletal Muscle Mass", "SMM", "Skeletal Muscle Mass (lb)", "Skeletal Muscle Mass (lbs)"])
-    if 0 <= idx_smm < len(prev) and 0 <= idx_smm < len(curr):
-        m0 = _num(prev[idx_smm], None)
-        m1 = _num(curr[idx_smm], None)
-        if m0 is not None and m1 is not None:
-            return (m1 - m0), True
-
-    idx_w = _find_label_index(labels, ["Weight", "Bodyweight"])
-    w0 = _num(prev[idx_w], 0.0) if 0 <= idx_w < len(prev) else 0.0
-    w1 = _num(curr[idx_w], 0.0) if 0 <= idx_w < len(curr) else 0.0
-    dw = w1 - w0
-
-    nonfat_change = dw - fat_change_lb
-
-    strength_score = _clamp(strength_pct / 100.0, 0.0, 2.5)
-    baseline_gain = _clamp(1.2 * strength_score, 0.0, 2.8)
-
-    if nonfat_change > 0:
-        frac = _clamp(0.40 + 0.20 * strength_score, 0.40, 0.75)
-        muscle_from_nonfat = nonfat_change * frac
-        est = max(baseline_gain, muscle_from_nonfat)
-    else:
-        est = baseline_gain
-
-    fat_dropped = (fat_change_lb < -0.2)
-    weight_dropped = (dw < -0.2)
-    if not fat_dropped and not weight_dropped:
-        est *= 0.6
-
-    est = _clamp(est, 0.0, 3.0)
-
-    if strength_pct < -5:
-        est = _clamp(nonfat_change * 0.2, -2.0, 0.0)
-
-    return (float(est), False)
-
-
-# ------------------------- confidence scoring + HTML patching -------------------------
-# (Your original functions exist in your version; they are not required for the Lawson bug fix.)
-# Keep your existing compute_recomp_confidence / patch_recomp_confidence / patch_recomp_tiles if you want.
-# For now, we only guarantee correct REPORT_DATA data flow.
 
 
 # ------------------------- REPORT_DATA injection -------------------------
@@ -219,6 +77,14 @@ def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     report = json.loads(REPORT_JSON.read_text(encoding="utf-8"))
+
+    # ---- Confidence (read-only from report.json) ----
+    confidence = report.get("confidence", {
+        "value": 55,
+        "label": "Inconclusive"
+    })
+    report["confidence"] = confidence
+
 
     # IMPORTANT: keep output/report-data.js in sync (so it never stays stuck on Lawson)
     write_report_data_js(OUTPUT_DIR, report)

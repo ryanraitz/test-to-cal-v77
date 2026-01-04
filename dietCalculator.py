@@ -900,6 +900,14 @@ class DietCalculator(QWidget):
             return float(default)
 
     def generate_pdf_only(self):
+
+        from PyQt5.QtWidgets import QFileDialog
+        csv_path, _ = QFileDialog.getOpenFileName(self, "Select HealthKit Monthly CSV", "", "CSV Files (*.csv)")
+        if csv_path:
+            os.environ["HEALTHKIT_CSV_PATH"] = csv_path
+        else:
+            os.environ.pop("HEALTHKIT_CSV_PATH", None)
+
         """
         Generate reports/report.json from CURRENT GUI calculation, with Old/New comparisons.
         Then run progress_report_template/build_report.py (which reads ../reports/report.json)

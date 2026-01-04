@@ -3,7 +3,7 @@
   "tokens": {
     "REPORT_TITLE": "Progress Report",
     "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.",
-    "CLIENT_LABEL": "Harrison Hodges",
+    "CLIENT_LABEL": "Adam Lieber",
     "REPORT_DATE": "1.4.26",
     "DAILY_STEPS": "4000",
     "HEADER_CHIP_1": "CUT",
@@ -11,9 +11,9 @@
     "HEADER_CHIP_3": "XT",
     "MACROS_TITLE": "Macronutrient Breakdown",
     "PROTEIN_LABEL": "Protein",
-    "PROTEIN_PCT": "27%",
+    "PROTEIN_PCT": "28%",
     "CARB_LABEL": "Carbs",
-    "CARB_PCT": "46%",
+    "CARB_PCT": "45%",
     "FAT_LABEL": "Fat",
     "FAT_PCT": "27%",
     "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.",
@@ -23,13 +23,13 @@
     "TABLE_COL_2": "Old",
     "TABLE_COL_3": "New",
     "ROW_1_LABEL": "Protein",
-    "ROW_1_MID": "180 g",
-    "ROW_1_VALUE": "160 g",
+    "ROW_1_MID": "176 g",
+    "ROW_1_VALUE": "165 g",
     "ROW_2_LABEL": "Carbs",
-    "ROW_2_MID": "286 g",
-    "ROW_2_VALUE": "269 g",
+    "ROW_2_MID": "255 g",
+    "ROW_2_VALUE": "270 g",
     "ROW_3_LABEL": "Fats",
-    "ROW_3_MID": "76 g",
+    "ROW_3_MID": "68 g",
     "ROW_3_VALUE": "72 g",
     "LINE_TITLE": "Goal Timeline",
     "AXIS_TOP": "Weight (lb)",
@@ -39,12 +39,12 @@
   "macros": [
     {
       "key": "Protein",
-      "value": 27,
+      "value": 28,
       "color": "var(--orange)"
     },
     {
       "key": "Carbs",
-      "value": 46,
+      "value": 45,
       "color": "var(--teal)"
     },
     {
@@ -60,13 +60,13 @@
       "Fat"
     ],
     "prev": [
-      180.0,
-      286.0,
-      76.0
+      176.0,
+      255.0,
+      68.0
     ],
     "curr": [
-      160.0,
-      269.0,
+      165.0,
+      270.0,
       72.0
     ]
   },
@@ -80,25 +80,25 @@
       "Push-Ups"
     ],
     "prev": [
-      180.0,
-      14.0,
-      2928,
-      2553,
-      14,
+      176.0,
+      15.0,
+      2711,
+      2336,
+      15,
       50
     ],
     "curr": [
-      160.0,
-      10.0,
-      2735,
-      2360,
-      15,
-      50
+      165.0,
+      12.0,
+      2760,
+      2385,
+      18,
+      40
     ]
   },
   "goalTimeline": {
-    "startWeight": 160.0,
-    "goalWeight": 155.0,
+    "startWeight": 165.0,
+    "goalWeight": 163.0,
     "estWeeksMin": 10,
     "estWeeksMax": 12,
     "rateLbPerWeek": 0.9,
