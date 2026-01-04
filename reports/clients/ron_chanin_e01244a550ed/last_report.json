@@ -4,18 +4,18 @@
     "REPORT_TITLE": "Progress Report",
     "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.",
     "CLIENT_LABEL": "Ron Chanin",
-    "REPORT_DATE": "12.18.25",
+    "REPORT_DATE": "1.4.26",
     "DAILY_STEPS": "3000",
-    "HEADER_CHIP_1": "CUT",
+    "HEADER_CHIP_1": "GAIN",
     "HEADER_CHIP_2": "",
     "HEADER_CHIP_3": "XT",
     "MACROS_TITLE": "Macronutrient Breakdown",
     "PROTEIN_LABEL": "Protein",
-    "PROTEIN_PCT": "38%",
+    "PROTEIN_PCT": "36%",
     "CARB_LABEL": "Carbs",
-    "CARB_PCT": "39%",
+    "CARB_PCT": "40%",
     "FAT_LABEL": "Fat",
-    "FAT_PCT": "23%",
+    "FAT_PCT": "24%",
     "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.",
     "BARS_TITLE": "Composition changes",
     "TABLE_TITLE": "Dietary Changes",
@@ -23,14 +23,14 @@
     "TABLE_COL_2": "Old",
     "TABLE_COL_3": "New",
     "ROW_1_LABEL": "Protein",
-    "ROW_1_MID": "170 g",
-    "ROW_1_VALUE": "180 g",
+    "ROW_1_MID": "180 g",
+    "ROW_1_VALUE": "165 g",
     "ROW_2_LABEL": "Carbs",
-    "ROW_2_MID": "172 g",
-    "ROW_2_VALUE": "187 g",
+    "ROW_2_MID": "187 g",
+    "ROW_2_VALUE": "185 g",
     "ROW_3_LABEL": "Fats",
-    "ROW_3_MID": "46 g",
-    "ROW_3_VALUE": "50 g",
+    "ROW_3_MID": "50 g",
+    "ROW_3_VALUE": "49 g",
     "LINE_TITLE": "Goal Timeline",
     "AXIS_TOP": "Weight (lb)",
     "AXIS_BOTTOM": "Start",
@@ -39,20 +39,37 @@
   "macros": [
     {
       "key": "Protein",
-      "value": 38,
+      "value": 36,
       "color": "var(--orange)"
     },
     {
       "key": "Carbs",
-      "value": 39,
+      "value": 40,
       "color": "var(--teal)"
     },
     {
       "key": "Fat",
-      "value": 23,
+      "value": 24,
       "color": "var(--teal2)"
     }
   ],
+  "macroBars": {
+    "labels": [
+      "Protein",
+      "Carbs",
+      "Fat"
+    ],
+    "prev": [
+      180.0,
+      187.0,
+      50.0
+    ],
+    "curr": [
+      165.0,
+      185.0,
+      49.0
+    ]
+  },
   "bars": {
     "labels": [
       "Weight",
@@ -63,25 +80,25 @@
       "Push-Ups"
     ],
     "prev": [
-      170.0,
-      15.0,
-      2154,
-      1779,
-      5,
-      25
-    ],
-    "curr": [
       180.0,
       17.0,
       2290,
       1915,
       10,
       40
+    ],
+    "curr": [
+      165.0,
+      13.0,
+      2217,
+      1842,
+      15,
+      56
     ]
   },
   "goalTimeline": {
-    "startWeight": 180.0,
-    "goalWeight": 174.0,
+    "startWeight": 165.0,
+    "goalWeight": 167.0,
     "estWeeksMin": 10,
     "estWeeksMax": 12,
     "rateLbPerWeek": 0.9,
