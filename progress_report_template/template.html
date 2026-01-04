@@ -63,7 +63,79 @@
       overflow:hidden;
       box-shadow: 0 30px 90px rgba(0,0,0,.55);
     }
-    .inner{padding:56px 56px 48px 56px; height:100%;}
+    
+    /* ===== Mobile (iPhone) responsive mode =====
+       - When <body> has class "mobile", we switch from "scale a 1620x1620 canvas"
+         to a true 1-column, scrollable layout that reads well on phones.
+       - Export (export=1) is unchanged and remains 1620x1620 for PDF/PNG.
+    */
+    body.mobile{
+      display:block;
+      min-height:auto;
+      padding:12px;
+    }
+    body.mobile #viewport{ overflow: visible !important; }
+    body.mobile .page{
+      width: 100% !important;
+      height: auto !important;
+      border-radius: 14px;
+    }
+    body.mobile .inner{
+      padding: 20px 16px 18px 16px !important;
+      height:auto !important;
+    }
+    body.mobile .header{
+      flex-direction: column;
+      align-items:flex-start;
+      gap: 10px;
+    }
+    body.mobile .title h1{ font-size: 34px !important; }
+    body.mobile .subtitle{ font-size: 14px !important; margin-top: 10px !important; }
+    body.mobile .meta{
+      min-width: 0 !important;
+      width: 100%;
+      text-align:left !important;
+    }
+    body.mobile .meta .date{ font-size: 18px !important; }
+    body.mobile .rule{ margin-top: 16px !important; }
+
+    body.mobile .grid{
+      margin-top: 18px !important;
+      grid-template-columns: 1fr !important;
+      grid-template-rows: auto !important;
+      height: auto !important;
+      border-left: none !important;
+    }
+    body.mobile .card{
+      padding: 18px 16px 14px 16px !important;
+      border-right: none !important;
+    }
+    body.mobile .card h2{ font-size: 18px !important; }
+    body.mobile .card .subcap{ font-size: 12px !important; }
+
+    /* Charts: reduce fixed heights so sections don’t feel cramped */
+    body.mobile #card-bars .chart{ height: 220px !important; }
+    body.mobile #card-line .line{ height: 420px !important; }
+
+    /* Macros card: stack donut + legend cleanly */
+    body.mobile #card-macros .macroDonutGrid{
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+    }
+    body.mobile #card-macros .donutWrap{
+      width: 320px !important;
+      height: 320px !important;
+      margin: 0 auto;
+    }
+    body.mobile #card-macros .row{
+      padding: 10px 10px !important;
+    }
+    body.mobile #card-macros .val{ font-size: 13px !important; }
+
+    /* Comparison table / KPIs: allow wrap */
+    body.mobile .kpis{ grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+    body.mobile .recomp-kpis{ grid-template-columns: 1fr !important; }
+.inner{padding:56px 56px 48px 56px; height:100%;}
     .header{
       display:flex;
       align-items:flex-start;
@@ -1301,9 +1373,6 @@
   .recomp-title{ font-size: 18px; }
 }
 
-  .recomp-title{ font-size: 20px; }
-}
-
 /* ===== Header disclaimer (replaces chips visually, keeps layout stable) ===== */
 .meta .chips{ display:none !important; } /* keeps structure intact, just hides L/3/T */
 .header-disclaimer{
@@ -2349,6 +2418,79 @@ h2 {
   50%  { opacity: 1.0; }
   100% { opacity: 0.85; }
 }
+
+/* ===========================
+   iPhone Reading Mode Patch
+   =========================== */
+@media (max-width: 520px) {
+
+  /* Slight global scale bump for legibility */
+  body.mobile {
+    --ui-scale: 1.15;
+  }
+
+  /* Ensure single-column flow everywhere */
+  body.mobile .grid {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+  }
+
+  /* ---------------------------
+     Dietary Changes (BIG WIN)
+     --------------------------- */
+  body.mobile #card-macros .dietary-hbars-host {
+    height: auto !important;
+    gap: 14px;
+    padding: 10px 6px;
+  }
+
+  body.mobile #card-macros .hGroup {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  body.mobile #card-macros .hLabelCol {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  body.mobile #card-macros .barRow {
+    grid-template-columns: 44px 1fr auto;
+    gap: 8px;
+  }
+
+  body.mobile #card-macros .pct {
+    width: auto;
+    font-size: 11px;
+  }
+
+  /* ---------------------------
+     Composition Changes
+     --------------------------- */
+  body.mobile #card-bars .chart {
+    height: 200px !important;
+  }
+
+  body.mobile .comp-table-wrap {
+    margin-top: 6px;
+  }
+
+  /* ---------------------------
+     Recomp Summary: pull it up
+     --------------------------- */
+  body.mobile .recomp-summary {
+    margin-top: 10px;
+    padding: 12px;
+  }
+
+  body.mobile .recomp-title {
+    font-size: 22px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2610,9 +2752,23 @@ h2 {
     const vw = Math.max(320, window.innerWidth  - pad*2);
     const vh = Math.max(320, window.innerHeight - pad*2);
 
-    // Scale down to fit; never scale above 1 (keeps type crisp)
-    let s = Math.min(vw / DESIGN_W, vh / DESIGN_H, 1.25);
-    s = Math.max(1, s);
+    // --- Mobile mode: switch to true responsive layout instead of shrinking to ~0.22 on phones
+    const isMobile = window.innerWidth <= 700;
+    document.body.classList.toggle("mobile", isMobile);
+
+    if(isMobile){
+      // Let CSS handle layout; keep transforms off so text is readable
+      page.style.transform = "scale(1)";
+      page.style.width  = "100%";
+      page.style.height = "auto";
+      wrap.style.width  = "100%";
+      wrap.style.height = "auto";
+      vp.style.overflow = "visible";
+      return;
+    }
+
+    // Scale down to fit (desktop/tablet); never scale above 1
+    let s = Math.min(vw / DESIGN_W, vh / DESIGN_H, 1);
 
     page.style.width  = DESIGN_W + "px";
     page.style.height = DESIGN_H + "px";
