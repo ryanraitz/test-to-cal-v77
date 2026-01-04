@@ -57,6 +57,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import QSettings, Qt
 from PyQt5.QtGui import QPalette, QColor, QFont
 
+from healthkit_totals_tool import HealthkitTotalsDialog
+
 
 def apply_dark_theme(app: QApplication):
     """Apply a dark Fusion theme to the whole app."""
@@ -322,12 +324,16 @@ class DietCalculator(QWidget):
         self.prev_report_button = QPushButton("Previous Report")
         self.prev_report_button.clicked.connect(self.on_prev_report_button_clicked)
 
+        self.healthkit_button = QPushButton("HealthKit Totals")
+        self.healthkit_button.clicked.connect(self.on_healthkit_button_clicked)
+
         side_btn_layout.addWidget(self.clear_button)
         side_btn_layout.addWidget(self.exit_button)
         side_btn_layout.addSpacing(10)
         side_btn_layout.addWidget(self.calc_button)
         side_btn_layout.addWidget(self.pdf_button)
         side_btn_layout.addWidget(self.prev_report_button)
+        side_btn_layout.addWidget(self.healthkit_button)
         side_btn_layout.addStretch()
 
         middle_layout.addLayout(side_btn_layout, stretch=1)
@@ -852,6 +858,22 @@ class DietCalculator(QWidget):
         latest_html = out_dir / "latest.html"
         if latest_html.exists():
             open_file(latest_html)
+
+
+    def on_healthkit_button_clicked(self):
+        """
+        Launch HealthKit totals dialog. When user computes totals, append to the Output log.
+        Client selection + report workflow stays in THIS main GUI.
+        """
+        def _append(summary_text: str):
+            try:
+                self.output_text.append("\n" + summary_text + "\n")
+            except Exception:
+                pass
+
+        dlg = HealthkitTotalsDialog(parent=self, on_result=_append)
+        dlg.setModal(False)
+        dlg.show()
 
     def send_pdf_only(self):
         """

@@ -2474,6 +2474,19 @@ h2 {
     height: 200px !important;
   }
 
+  /* Mobile: prevent % change labels from colliding with section title */
+  body.mobile #card-bars h2{
+    margin-bottom: 16px !important;
+  }
+  body.mobile #card-bars .bars-wrap{
+    margin-top: 14px !important;
+  }
+  /* Override inline padding/height set by JS */
+  body.mobile #chart-bars{
+    padding: 74px 14px 18px !important;
+    height: 230px !important;
+  }
+
   body.mobile .comp-table-wrap {
     margin-top: 6px;
   }
@@ -3579,8 +3592,9 @@ function renderBars(){
       host.style.alignItems = "flex-end";
 	  host.style.justifyContent = "space-between"; // evenly distribute groups
 	  host.style.gap = "12px";                  // tighter & consistent
-	  host.style.padding = "18px 14px";
-      host.style.height = "260px";
+	  const isMobile = document.body.classList.contains("mobile") || window.innerWidth <= 520;
+      host.style.padding = isMobile ? "44px 14px 18px" : "18px 14px";
+      host.style.height = isMobile ? "220px" : "260px";
 
       // ---- Hover tooltip for bars (like macro slices) ----
       let barTip = host.querySelector(".barTip");

@@ -2474,6 +2474,19 @@ h2 {
     height: 200px !important;
   }
 
+  /* Mobile: prevent % change labels from colliding with section title */
+  body.mobile #card-bars h2{
+    margin-bottom: 16px !important;
+  }
+  body.mobile #card-bars .bars-wrap{
+    margin-top: 14px !important;
+  }
+  /* Override inline padding/height set by JS */
+  body.mobile #chart-bars{
+    padding: 74px 14px 18px !important;
+    height: 230px !important;
+  }
+
   body.mobile .comp-table-wrap {
     margin-top: 6px;
   }
@@ -2492,7 +2505,7 @@ h2 {
 }
 
 </style>
-<!-- REPORT_JSON_PATH: C:\Users\ryanr\Library\test-to-cal-v77\reports\report.json -->
+<!-- REPORT_JSON_PATH: C:\Users\ryanr\Library\test-to-cal-v77\reports\clients\clifton_shepherd_a434be722176\last_report.json -->
 
 <script>
 window.REPORT_DATA = {"dailySteps": 4000, "tokens": {"REPORT_TITLE": "Progress Report", "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.", "CLIENT_LABEL": "Clifton Shepherd", "REPORT_DATE": "1.2.26", "DAILY_STEPS": "4000", "HEADER_CHIP_1": "CUT", "HEADER_CHIP_2": "", "HEADER_CHIP_3": "XT", "MACROS_TITLE": "Macronutrient Breakdown", "PROTEIN_LABEL": "Protein", "PROTEIN_PCT": "26%", "CARB_LABEL": "Carbs", "CARB_PCT": "46%", "FAT_LABEL": "Fat", "FAT_PCT": "28%", "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.", "BARS_TITLE": "Composition changes", "TABLE_TITLE": "Dietary Changes", "TABLE_COL_1": "Macro", "TABLE_COL_2": "Old", "TABLE_COL_3": "New", "ROW_1_LABEL": "Protein", "ROW_1_MID": "170 g", "ROW_1_VALUE": "160 g", "ROW_2_LABEL": "Carbs", "ROW_2_MID": "259 g", "ROW_2_VALUE": "280 g", "ROW_3_LABEL": "Fats", "ROW_3_MID": "69 g", "ROW_3_VALUE": "75 g", "LINE_TITLE": "Goal Timeline", "AXIS_TOP": "Weight (lb)", "AXIS_BOTTOM": "Start", "AXIS_RIGHT": "Goal"}, "macros": [{"key": "Protein", "value": 26, "color": "var(--orange)"}, {"key": "Carbs", "value": 46, "color": "var(--teal)"}, {"key": "Fat", "value": 28, "color": "var(--teal2)"}], "macroBars": {"labels": ["Protein", "Carbs", "Fat"], "prev": [170.0, 259.0, 69.0], "curr": [160.0, 280.0, 75.0]}, "bars": {"labels": ["Weight", "Bodyfat %", "TDEE", "Daily Calorie Goal", "Pull-Ups", "Push-Ups"], "prev": [170.0, 15.0, 2713, 2338, 15, 35], "curr": [160.0, 11.0, 2806, 2431, 20, 40]}, "goalTimeline": {"startWeight": 160.0, "goalWeight": 157.0, "estWeeksMin": 10, "estWeeksMax": 12, "rateLbPerWeek": 0.9, "variationPct": 0.2, "yTicks": [190, 187, 184, 181, 178, 172]}};
@@ -3582,8 +3595,9 @@ function renderBars(){
       host.style.alignItems = "flex-end";
 	  host.style.justifyContent = "space-between"; // evenly distribute groups
 	  host.style.gap = "12px";                  // tighter & consistent
-	  host.style.padding = "18px 14px";
-      host.style.height = "260px";
+	  const isMobile = document.body.classList.contains("mobile") || window.innerWidth <= 520;
+      host.style.padding = isMobile ? "44px 14px 18px" : "18px 14px";
+      host.style.height = isMobile ? "220px" : "260px";
 
       // ---- Hover tooltip for bars (like macro slices) ----
       let barTip = host.querySelector(".barTip");
