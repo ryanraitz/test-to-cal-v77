@@ -2508,16 +2508,17 @@ h2 {
 
 <style>
 /* =====================================================
-   Dietary Changes header — reuse section-title styling
-   WITHOUT altering layout height
+   CENTER REPORT AFTER WIDTH-ONLY SCALING
    ===================================================== */
-#card-macros .dietary-inline h2{
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: inherit;
-  padding: 0;
-  margin: 0;
+#viewport{
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* ensure pageWrap doesn't pin left */
+#pageWrap{
+  margin: 0 auto;
 }
 </style>
 
@@ -4613,9 +4614,7 @@ window.__syncMacroUI = function(){
 
 <script>
 /* =====================================================
-   FINAL SCALER (WIDTH-ONLY, NO HEIGHT COUPLING)
-   - Never shrinks due to content height
-   - Scales up only on wide screens
+   WIDTH-ONLY SCALER (NO HEIGHT COUPLING)
    ===================================================== */
 (function(){
   const DESIGN_W = 1620;
@@ -4658,6 +4657,65 @@ window.__syncMacroUI = function(){
   window.addEventListener("resize", applyScale);
   window.addEventListener("orientationchange", applyScale);
   document.addEventListener("DOMContentLoaded", applyScale);
+})();
+</script>
+
+<script>
+/* =====================================================
+   LIVE RECOMPOSITION CONFIDENCE (SAFE)
+   ===================================================== */
+(function(){
+  function num(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
+  function clamp(x,a,b){ return Math.max(a, Math.min(b,x)); }
+
+  function computeConfidence(){
+    const RD = window.REPORT_DATA || {};
+    const tokens = RD.tokens || {};
+
+    const fatLoss = Math.abs(num(tokens.FAT_LOSS_LB || tokens.FAT_LOSS || 0));
+    const leanGain = num(tokens.LEAN_GAIN_LB || tokens.LEAN_GAIN || 0);
+    const strength = num(tokens.STRENGTH_PCT || 0);
+    const steps = num(tokens.DAILY_STEPS || 0);
+    const calGoal = num(tokens.DAILY_CAL_GOAL || 0);
+
+    let score = 50;
+    score += clamp(fatLoss * 3, 0, 20);
+    score += clamp(leanGain * 4, 0, 20);
+    score += clamp(strength * 0.8, 0, 20);
+    if(steps >= 9000) score += 10;
+    else if(steps >= 7500) score += 6;
+    else if(steps >= 6000) score += 3;
+    if(calGoal > 0) score += 5;
+
+    return Math.round(clamp(score, 0, 100));
+  }
+
+  function applyConfidence(){
+    const score = computeConfidence();
+    const scoreEl = document.getElementById("recomp-conf-score");
+    const badgeEl = document.getElementById("recomp-conf-badge");
+    const copyEl  = document.getElementById("recomp-conf-copy");
+    if(!scoreEl || !badgeEl || !copyEl) return;
+
+    scoreEl.textContent = `Score: ${score}/100`;
+
+    let label = "Low", cls = "conf-low",
+        copy = "Signals are mixed. Focus on calorie consistency, protein, and daily movement.";
+    if(score >= 70){
+      label = "High"; cls = "conf-high";
+      copy = "Strong recomposition signals. Fat loss, lean gain, and performance trends align.";
+    } else if(score >= 55){
+      label = "Medium"; cls = "conf-med";
+      copy = "Encouraging recomposition signals. Tightening consistency will raise confidence.";
+    }
+
+    badgeEl.textContent = `Confidence: ${label}`;
+    badgeEl.classList.remove("conf-low","conf-med","conf-high");
+    badgeEl.classList.add(cls);
+    copyEl.textContent = copy;
+  }
+
+  document.addEventListener("DOMContentLoaded", applyConfidence);
 })();
 </script>
 
