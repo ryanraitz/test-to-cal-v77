@@ -2522,10 +2522,10 @@ h2 {
 }
 </style>
 
-<!-- REPORT_JSON_PATH: C:\Users\ryanr\Library\test-to-cal-v77_NO_FIRST_FOLLOWUP_GUI\reports\clients\dean_katz_01e9931181b3\last_report.json -->
+<!-- REPORT_JSON_PATH: C:\Users\ryanr\Library\test-to-cal-v77_CONFIDENCE_PATCHED\test-to-cal-v77_NO_FIRST_FOLLOWUP_GUI\reports\clients\dean_katz_01e9931181b3\last_report.json -->
 
 <script>
-window.REPORT_DATA = {"dailySteps": 3500, "tokens": {"REPORT_TITLE": "Progress Report", "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.", "CLIENT_LABEL": "Dean Katz", "REPORT_DATE": "1.4.26", "DAILY_STEPS": "3500", "HEADER_CHIP_1": "CUT", "HEADER_CHIP_2": "", "HEADER_CHIP_3": "XT", "MACROS_TITLE": "Macronutrient Breakdown", "PROTEIN_LABEL": "Protein", "PROTEIN_PCT": "28%", "CARB_LABEL": "Carbs", "CARB_PCT": "45%", "FAT_LABEL": "Fat", "FAT_PCT": "27%", "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.", "BARS_TITLE": "Composition changes", "TABLE_TITLE": "Dietary Changes", "TABLE_COL_1": "Macro", "TABLE_COL_2": "Old", "TABLE_COL_3": "New", "ROW_1_LABEL": "Protein", "ROW_1_MID": "170 g", "ROW_1_VALUE": "176 g", "ROW_2_LABEL": "Carbs", "ROW_2_MID": "266 g", "ROW_2_VALUE": "278 g", "ROW_3_LABEL": "Fats", "ROW_3_MID": "71 g", "ROW_3_VALUE": "74 g", "LINE_TITLE": "Goal Timeline", "AXIS_TOP": "Weight (lb)", "AXIS_BOTTOM": "Start", "AXIS_RIGHT": "Goal"}, "macros": [{"key": "Protein", "value": 28, "color": "var(--orange)"}, {"key": "Carbs", "value": 45, "color": "var(--teal)"}, {"key": "Fat", "value": 27, "color": "var(--teal2)"}], "macroBars": {"labels": ["Protein", "Carbs", "Fat"], "prev": [170.0, 266.0, 71.0], "curr": [176.0, 278.0, 74.0]}, "bars": {"labels": ["Weight", "Bodyfat %", "TDEE", "Daily Calorie Goal", "Pull-Ups", "Push-Ups"], "prev": [170.0, 13.0, 2757, 2382, 20, 45], "curr": [176.0, 14.0, 2857, 2482, 16, 46]}, "goalTimeline": {"startWeight": 176.0, "goalWeight": 171.0, "estWeeksMin": 10, "estWeeksMax": 12, "rateLbPerWeek": 0.9, "variationPct": 0.2, "yTicks": [190, 187, 184, 181, 178, 172]}, "confidence": {"value": 55, "label": "Inconclusive"}};
+window.REPORT_DATA = {"dailySteps": 3000, "tokens": {"REPORT_TITLE": "Progress Report", "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.", "CLIENT_LABEL": "Dean Katz", "REPORT_DATE": "1.7.26", "DAILY_STEPS": "3000", "HEADER_CHIP_1": "GAIN", "HEADER_CHIP_2": "", "HEADER_CHIP_3": "XT", "MACROS_TITLE": "Macronutrient Breakdown", "PROTEIN_LABEL": "Protein", "PROTEIN_PCT": "30%", "CARB_LABEL": "Carbs", "CARB_PCT": "43%", "FAT_LABEL": "Fat", "FAT_PCT": "27%", "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.", "BARS_TITLE": "Composition changes", "TABLE_TITLE": "Dietary Changes", "TABLE_COL_1": "Macro", "TABLE_COL_2": "Old", "TABLE_COL_3": "New", "ROW_1_LABEL": "Protein", "ROW_1_MID": "176 g", "ROW_1_VALUE": "155 g", "ROW_2_LABEL": "Carbs", "ROW_2_MID": "278 g", "ROW_2_VALUE": "221 g", "ROW_3_LABEL": "Fats", "ROW_3_MID": "74 g", "ROW_3_VALUE": "59 g", "LINE_TITLE": "Goal Timeline", "AXIS_TOP": "Weight (lb)", "AXIS_BOTTOM": "Start", "AXIS_RIGHT": "Goal"}, "macros": [{"key": "Protein", "value": 30, "color": "var(--orange)"}, {"key": "Carbs", "value": 43, "color": "var(--teal)"}, {"key": "Fat", "value": 27, "color": "var(--teal2)"}], "macroBars": {"labels": ["Protein", "Carbs", "Fat"], "prev": [176.0, 278.0, 74.0], "curr": [155.0, 221.0, 59.0]}, "bars": {"labels": ["Weight", "Bodyfat %", "TDEE", "Daily Calorie Goal", "Pull-Ups", "Push-Ups"], "prev": [176.0, 14.0, 2857, 2482, 16, 46], "curr": [155.0, 10.0, 2412, 2037, 30, 60]}, "goalTimeline": {"startWeight": 155.0, "goalWeight": 165.0, "estWeeksMin": 10, "estWeeksMax": 12, "rateLbPerWeek": 0.9, "variationPct": 0.2, "yTicks": [190, 187, 184, 181, 178, 172]}, "confidence": {"value": 76, "label": "High"}};
 </script>
 </head>
 <body>
@@ -4691,7 +4691,18 @@ window.__syncMacroUI = function(){
   }
 
   function applyConfidence(){
-    const score = computeConfidence();
+    const rd = (window.REPORT_DATA || {});
+    let score = null;
+    // Prefer HealthKit-provided confidence injected via report.json
+    if (rd.confidence && rd.confidence.value != null) {
+      const v = Number(rd.confidence.value);
+      if (Number.isFinite(v)) score = v;
+    }
+    if (score == null && rd.confidenceScore != null) {
+      const v = Number(rd.confidenceScore);
+      if (Number.isFinite(v)) score = v;
+    }
+    if (score == null) score = computeConfidence();
     const scoreEl = document.getElementById("recomp-conf-score");
     const badgeEl = document.getElementById("recomp-conf-badge");
     const copyEl  = document.getElementById("recomp-conf-copy");
@@ -4699,6 +4710,13 @@ window.__syncMacroUI = function(){
 
     scoreEl.textContent = `Score: ${score}/100`;
 
+    const injectedLabel = (rd.confidence && rd.confidence.label != null) ? String(rd.confidence.label) : null;
+    if(injectedLabel){
+      const L = injectedLabel.toLowerCase();
+      if(L.includes("high")){ label="High"; cls="conf-high"; }
+      else if(L.includes("med")){ label="Medium"; cls="conf-med"; }
+      else if(L.includes("low")){ label="Low"; cls="conf-low"; }
+    }
     let label = "Low", cls = "conf-low",
         copy = "Signals are mixed. Focus on calorie consistency, protein, and daily movement.";
     if(score >= 70){

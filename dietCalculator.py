@@ -178,6 +178,7 @@ class DietCalculator(QWidget):
 
         self.clients = []
         self.last_results = None  # store last calculation results for export/PDF
+        self.healthkit_confidence = None  # set by HealthKit Totals dialog
 
         # PDF/send state
         self.pdf_state = "generate"  # "generate" or "send"
@@ -903,13 +904,6 @@ class DietCalculator(QWidget):
 
     def generate_pdf_only(self):
 
-        from PyQt5.QtWidgets import QFileDialog
-        csv_path, _ = QFileDialog.getOpenFileName(self, "Select HealthKit Monthly CSV", "", "CSV Files (*.csv)")
-        if csv_path:
-            os.environ["HEALTHKIT_CSV_PATH"] = csv_path
-        else:
-            os.environ.pop("HEALTHKIT_CSV_PATH", None)
-
         """
         Generate reports/report.json from CURRENT GUI calculation, with Old/New comparisons.
         Then run progress_report_template/build_report.py (which reads ../reports/report.json)
@@ -1151,6 +1145,10 @@ class DietCalculator(QWidget):
         }
 
         # Write new report.json (this becomes baseline for NEXT run)
+        # Attach HealthKit confidence score (set by HealthKit Totals dialog)
+        if getattr(self, "healthkit_confidence", None):
+            data["confidence"] = self.healthkit_confidence
+
         report_json_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
         # Persist this client's report as their new baseline for future follow-ups

@@ -464,6 +464,66 @@ class HealthkitTotalsDialog(QDialog):
             except Exception:
                 pass
 
+
+        # --- Confidence score (from HealthKit execution) ---
+        try:
+            days_present_c = int(totals.get("days_present", 0) or 0)
+            expected_days_c = int(totals.get("expected_days", 0) or 0)
+
+            # Calorie goal achieved count
+            cal_met = 0
+            if self.daily_calorie_goal is not None and expected_days_c:
+                goal_c = float(self.daily_calorie_goal)
+                chip_c = (self.header_chip_1 or "").strip().upper()
+                day_active_c = totals.get("day_active_by_date", {}) or {}
+                for dk in (totals.get("dates", []) or []):
+                    active = _num(day_active_c.get(dk, 0))
+                    if chip_c == "BULK":
+                        if active >= goal_c: cal_met += 1
+                    elif chip_c == "CUT":
+                        if active <= goal_c: cal_met += 1
+                    else:
+                        # If plan unknown, treat within +/-10% as "met"
+                        if abs(active - goal_c) <= (0.10 * goal_c): cal_met += 1
+
+            # Protein goal achieved count
+            prot_met = 0
+            if self.daily_protein_goal is not None and expected_days_c:
+                day_pro_c = totals.get("day_protein_by_date", {}) or {}
+                goal_p = float(self.daily_protein_goal)
+                for dk in (totals.get("dates", []) or []):
+                    grams = _num(day_pro_c.get(dk, 0))
+                    if grams >= goal_p: prot_met += 1
+
+            # Weighted score (normalize if some goals are missing)
+            if expected_days_c <= 0:
+                confidence_score = 0
+            else:
+                w_days = 40
+                w_cal  = 30 if self.daily_calorie_goal is not None else 0
+                w_pro  = 30 if self.daily_protein_goal is not None else 0
+                w_tot  = max(1, (w_days + w_cal + w_pro))
+                raw = (days_present_c/expected_days_c)*w_days
+                if w_cal: raw += (cal_met/expected_days_c)*w_cal
+                if w_pro: raw += (prot_met/expected_days_c)*w_pro
+                confidence_score = int(round((raw / w_tot) * 100))
+                confidence_score = max(0, min(100, confidence_score))
+
+            label = "Low"
+            if confidence_score >= 70: label = "High"
+            elif confidence_score >= 50: label = "Medium"
+
+            lines.append(f"Confidence score: {confidence_score}/100 ({label})")
+
+            # Persist onto parent GUI so it can be written into report.json on Generate
+            try:
+                parent = self.parent()
+                if parent is not None:
+                    parent.healthkit_confidence = {"value": confidence_score, "label": label}
+            except Exception:
+                pass
+        except Exception:
+            pass
         text = "\n".join(lines) + "\n"
         self.output.append(text)
         if self.on_result:
