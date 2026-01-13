@@ -1186,10 +1186,17 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     apply_dark_theme(app)
 
-    dlg = ReportTypeDialog()
-    if dlg.exec_() != QDialog.Accepted:
-        sys.exit(0)
+    # Launch main GUI directly (no preliminary "Initial vs Follow-up" dialog).
+    # Optional CLI flags:
+    #   --initial   -> treat as an initial report (no prev comparisons)
+    #   --followup  -> treat as a follow-up report (default; loads prev report when available)
+    args = [a.strip().lower() for a in sys.argv[1:]]
+    report_mode = "followup"
+    if any(a in ("--initial", "--new") for a in args):
+        report_mode = "initial"
+    elif any(a in ("--followup", "--follow-up", "--repeat") for a in args):
+        report_mode = "followup"
 
-    window = DietCalculator(report_mode=dlg.choice())
+    window = DietCalculator(report_mode=report_mode)
     window.show()
     sys.exit(app.exec_())
