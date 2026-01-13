@@ -3,19 +3,19 @@
   "tokens": {
     "REPORT_TITLE": "Progress Report",
     "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.",
-    "CLIENT_LABEL": "Lawson Scher",
-    "REPORT_DATE": "1.13.26",
+    "CLIENT_LABEL": "Dean Katz",
+    "REPORT_DATE": "1.7.26",
     "DAILY_STEPS": "3000",
-    "HEADER_CHIP_1": "CUT",
+    "HEADER_CHIP_1": "GAIN",
     "HEADER_CHIP_2": "",
     "HEADER_CHIP_3": "XT",
     "MACROS_TITLE": "Macronutrient Breakdown",
     "PROTEIN_LABEL": "Protein",
-    "PROTEIN_PCT": "29%",
+    "PROTEIN_PCT": "27%",
     "CARB_LABEL": "Carbs",
-    "CARB_PCT": "44%",
+    "CARB_PCT": "45%",
     "FAT_LABEL": "Fat",
-    "FAT_PCT": "27%",
+    "FAT_PCT": "28%",
     "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.",
     "BARS_TITLE": "Composition changes",
     "TABLE_TITLE": "Dietary Changes",
@@ -23,14 +23,14 @@
     "TABLE_COL_2": "Old",
     "TABLE_COL_3": "New",
     "ROW_1_LABEL": "Protein",
-    "ROW_1_MID": "168 g",
-    "ROW_1_VALUE": "160 g",
+    "ROW_1_MID": "178 g",
+    "ROW_1_VALUE": "177 g",
     "ROW_2_LABEL": "Carbs",
-    "ROW_2_MID": "248 g",
-    "ROW_2_VALUE": "245 g",
+    "ROW_2_MID": "284 g",
+    "ROW_2_VALUE": "292 g",
     "ROW_3_LABEL": "Fats",
-    "ROW_3_MID": "66 g",
-    "ROW_3_VALUE": "65 g",
+    "ROW_3_MID": "76 g",
+    "ROW_3_VALUE": "78 g",
     "LINE_TITLE": "Goal Timeline",
     "AXIS_TOP": "Weight (lb)",
     "AXIS_BOTTOM": "Start",
@@ -39,17 +39,17 @@
   "macros": [
     {
       "key": "Protein",
-      "value": 29,
+      "value": 27,
       "color": "var(--orange)"
     },
     {
       "key": "Carbs",
-      "value": 44,
+      "value": 45,
       "color": "var(--teal)"
     },
     {
       "key": "Fat",
-      "value": 27,
+      "value": 28,
       "color": "var(--teal2)"
     }
   ],
@@ -60,14 +60,14 @@
       "Fat"
     ],
     "prev": [
-      168.0,
-      248.0,
-      66.0
+      178.0,
+      284.0,
+      76.0
     ],
     "curr": [
-      160.0,
-      245.0,
-      65.0
+      177.0,
+      292.0,
+      78.0
     ]
   },
   "bars": {
@@ -80,25 +80,25 @@
       "Push-Ups"
     ],
     "prev": [
-      168.0,
-      11.0,
-      2634,
-      2259,
-      16,
-      43
+      178.0,
+      16.0,
+      2903,
+      2528,
+      25,
+      41
     ],
     "curr": [
-      160.0,
-      9.0,
-      2584,
-      2209,
-      18,
-      45
+      177.0,
+      7.0,
+      2949,
+      2574,
+      23,
+      54
     ]
   },
   "goalTimeline": {
-    "startWeight": 160.0,
-    "goalWeight": 158.0,
+    "startWeight": 177.0,
+    "goalWeight": 182.0,
     "estWeeksMin": 10,
     "estWeeksMax": 12,
     "rateLbPerWeek": 0.9,
@@ -106,14 +106,14 @@
     "yTicks": [
       190,
       187,
-      -185,
+      184,
       181,
       178,
       172
     ]
   },
-  "logging_confidence": {
-    "value": 93,
-    "label": "High"
+  "confidence": {
+    "value": 68,
+    "label": "Medium"
   }
 }

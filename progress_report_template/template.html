@@ -4665,68 +4665,74 @@ window.__syncMacroUI = function(){
   function num(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
   function clamp(x,a,b){ return Math.max(a, Math.min(b,x)); }
 
-  function computeConfidence(){
+  function computeRecompConfidence(){
     const RD = window.REPORT_DATA || {};
-    const tokens = RD.tokens || {};
+    const t = RD.tokens || {};
 
-    const fatLoss = Math.abs(num(tokens.FAT_LOSS_LB || tokens.FAT_LOSS || 0));
-    const leanGain = num(tokens.LEAN_GAIN_LB || tokens.LEAN_GAIN || 0);
-    const strength = num(tokens.STRENGTH_PCT || 0);
-    const steps = num(tokens.DAILY_STEPS || 0);
-    const calGoal = num(tokens.DAILY_CAL_GOAL || 0);
+    const fatLoss   = Math.abs(num(t.FAT_LOSS_LB || t.FAT_LOSS || 0));
+    const leanGain  = num(t.LEAN_GAIN_LB || t.LEAN_GAIN || 0);
+    const strength  = num(t.STRENGTH_PCT || 0);
+    const steps     = num(t.DAILY_STEPS || 0);
+    const weeks     = Math.max(1, num(t.WEEKS_ELAPSED || 4));
 
-    let score = 50;
-    score += clamp(fatLoss * 3, 0, 20);
-    score += clamp(leanGain * 4, 0, 20);
-    score += clamp(strength * 0.8, 0, 20);
-    if(steps >= 9000) score += 10;
-    else if(steps >= 7500) score += 6;
-    else if(steps >= 6000) score += 3;
-    if(calGoal > 0) score += 5;
+    let score = 45; // neutral baseline
+
+    // ---------- Fat loss contribution (realistic cap) ----------
+    const fatPerWeek = fatLoss / weeks;
+    score += clamp(fatPerWeek * 6, 0, 18);
+
+    // ---------- Lean gain contribution (HARD physiological cap) ----------
+    const leanCap = 1.25; // lb per month (elite natural upper bound)
+    const leanNorm = clamp(leanGain / leanCap, 0, 1);
+    score += leanNorm * 18;
+
+    // ---------- Strength signal (direction matters) ----------
+    if (strength <= -5) score -= 10;
+    else if (strength < 0) score -= 5;
+    else score += clamp(strength * 0.9, 0, 14);
+
+    // ---------- Steps consistency ----------
+    if (steps >= 9000) score += 8;
+    else if (steps >= 7500) score += 5;
+    else if (steps >= 6000) score += 2;
 
     return Math.round(clamp(score, 0, 100));
   }
 
   function applyConfidence(){
-    const rd = (window.REPORT_DATA || {});
+    const rd = window.REPORT_DATA || {};
     let score = null;
-    // Prefer HealthKit-provided confidence injected via report.json
-    if (rd.confidence && rd.confidence.value != null) {
-      const v = Number(rd.confidence.value);
-      if (Number.isFinite(v)) score = v;
+
+    // 🚫 logging_confidence NEVER overrides recomposition
+    if (rd.confidence && rd.confidence.value != null){
+      score = Number(rd.confidence.value);
     }
-    if (score == null && rd.confidenceScore != null) {
-      const v = Number(rd.confidenceScore);
-      if (Number.isFinite(v)) score = v;
+
+    if (score == null){
+      score = computeRecompConfidence();
     }
-    if (score == null) score = computeConfidence();
+
     const scoreEl = document.getElementById("recomp-conf-score");
     const badgeEl = document.getElementById("recomp-conf-badge");
     const copyEl  = document.getElementById("recomp-conf-copy");
+
     if(!scoreEl || !badgeEl || !copyEl) return;
 
     scoreEl.textContent = `Score: ${score}/100`;
 
-    const injectedLabel = (rd.confidence && rd.confidence.label != null) ? String(rd.confidence.label) : null;
-    if(injectedLabel){
-      const L = injectedLabel.toLowerCase();
-      if(L.includes("high")){ label="High"; cls="conf-high"; }
-      else if(L.includes("med")){ label="Medium"; cls="conf-med"; }
-      else if(L.includes("low")){ label="Low"; cls="conf-low"; }
-    }
-    let label = "Low", cls = "conf-low",
-        copy = "Signals are mixed. Focus on calorie consistency, protein, and daily movement.";
-    if(score >= 70){
-      label = "High"; cls = "conf-high";
-      copy = "Strong recomposition signals. Fat loss, lean gain, and performance trends align.";
+    let label="Low", cls="conf-low", copy="";
+    if(score >= 75){
+      label="High"; cls="conf-high";
+      copy="Strong recomposition signals. Fat loss, lean gain, and performance trends align.";
     } else if(score >= 55){
-      label = "Medium"; cls = "conf-med";
-      copy = "Encouraging recomposition signals. Tightening consistency will raise confidence.";
+      label="Medium"; cls="conf-med";
+      copy="Positive recomposition signals with some variability. Tightening consistency will raise confidence.";
+    } else {
+      copy="Signals are mixed. Focus on calorie consistency, protein intake, and progressive overload.";
     }
 
     badgeEl.textContent = `Confidence: ${label}`;
-    badgeEl.classList.remove("conf-low","conf-med","conf-high");
-    badgeEl.classList.add(cls);
+    badgeEl.className = `conf-badge ${cls}`;
     copyEl.textContent = copy;
   }
 

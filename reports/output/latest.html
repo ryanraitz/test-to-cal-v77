@@ -2522,10 +2522,10 @@ h2 {
 }
 </style>
 
-<!-- REPORT_JSON_PATH: C:\Users\ryanr\Library\test-to-cal-v77_NO_FIRST_FOLLOWUP_GUI\reports\report.json -->
+<!-- REPORT_JSON_PATH: C:\Users\ryanr\Library\test-to-cal-v77_CONFIDENCE_SAFE\test-to-cal-v77_NO_FIRST_FOLLOWUP_GUI\reports\report.json -->
 
 <script>
-window.REPORT_DATA = {"dailySteps": 3000, "tokens": {"REPORT_TITLE": "Progress Report", "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.", "CLIENT_LABEL": "Andy Travis", "REPORT_DATE": "1.7.26", "DAILY_STEPS": "3000", "HEADER_CHIP_1": "CUT", "HEADER_CHIP_2": "", "HEADER_CHIP_3": "XT", "MACROS_TITLE": "Macronutrient Breakdown", "PROTEIN_LABEL": "Protein", "PROTEIN_PCT": "34%", "CARB_LABEL": "Carbs", "CARB_PCT": "41%", "FAT_LABEL": "Fat", "FAT_PCT": "25%", "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.", "BARS_TITLE": "Composition changes", "TABLE_TITLE": "Dietary Changes", "TABLE_COL_1": "Macro", "TABLE_COL_2": "Old", "TABLE_COL_3": "New", "ROW_1_LABEL": "Protein", "ROW_1_MID": "170 g", "ROW_1_VALUE": "170 g", "ROW_2_LABEL": "Carbs", "ROW_2_MID": "203 g", "ROW_2_VALUE": "203 g", "ROW_3_LABEL": "Fats", "ROW_3_MID": "54 g", "ROW_3_VALUE": "54 g", "LINE_TITLE": "Goal Timeline", "AXIS_TOP": "Weight (lb)", "AXIS_BOTTOM": "Start", "AXIS_RIGHT": "Goal"}, "macros": [{"key": "Protein", "value": 34, "color": "var(--orange)"}, {"key": "Carbs", "value": 41, "color": "var(--teal)"}, {"key": "Fat", "value": 25, "color": "var(--teal2)"}], "macroBars": {"labels": ["Protein", "Carbs", "Fat"], "prev": [170.0, 203.0, 54.0], "curr": [170.0, 203.0, 54.0]}, "bars": {"labels": ["Weight", "Bodyfat %", "TDEE", "Daily Calorie Goal", "Pull-Ups", "Push-Ups"], "prev": [170.0, 18.0, 2355, 1980, 5, 25], "curr": [170.0, 18.0, 2355, 1980, 5, 25]}, "goalTimeline": {"startWeight": 170.0, "goalWeight": 160.0, "estWeeksMin": 10, "estWeeksMax": 12, "rateLbPerWeek": 0.9, "variationPct": 0.2, "yTicks": [190, 187, 184, 181, 178, 172]}, "confidence": {"value": 55, "label": "Inconclusive"}};
+window.REPORT_DATA = {"dailySteps": 3000, "tokens": {"REPORT_TITLE": "Progress Report", "REPORT_SUBTITLE": "A coach-generated results summary for the client, including macros, adherence, and trend lines.", "CLIENT_LABEL": "Lawson Scher", "REPORT_DATE": "1.13.26", "DAILY_STEPS": "3000", "HEADER_CHIP_1": "CUT", "HEADER_CHIP_2": "", "HEADER_CHIP_3": "XT", "MACROS_TITLE": "Macronutrient Breakdown", "PROTEIN_LABEL": "Protein", "PROTEIN_PCT": "29%", "CARB_LABEL": "Carbs", "CARB_PCT": "44%", "FAT_LABEL": "Fat", "FAT_PCT": "27%", "MACROS_FOOTNOTE": "Auto-calculated from daily macro targets.", "BARS_TITLE": "Composition changes", "TABLE_TITLE": "Dietary Changes", "TABLE_COL_1": "Macro", "TABLE_COL_2": "Old", "TABLE_COL_3": "New", "ROW_1_LABEL": "Protein", "ROW_1_MID": "168 g", "ROW_1_VALUE": "160 g", "ROW_2_LABEL": "Carbs", "ROW_2_MID": "248 g", "ROW_2_VALUE": "245 g", "ROW_3_LABEL": "Fats", "ROW_3_MID": "66 g", "ROW_3_VALUE": "65 g", "LINE_TITLE": "Goal Timeline", "AXIS_TOP": "Weight (lb)", "AXIS_BOTTOM": "Start", "AXIS_RIGHT": "Goal"}, "macros": [{"key": "Protein", "value": 29, "color": "var(--orange)"}, {"key": "Carbs", "value": 44, "color": "var(--teal)"}, {"key": "Fat", "value": 27, "color": "var(--teal2)"}], "macroBars": {"labels": ["Protein", "Carbs", "Fat"], "prev": [168.0, 248.0, 66.0], "curr": [160.0, 245.0, 65.0]}, "bars": {"labels": ["Weight", "Bodyfat %", "TDEE", "Daily Calorie Goal", "Pull-Ups", "Push-Ups"], "prev": [168.0, 11.0, 2634, 2259, 16, 43], "curr": [160.0, 9.0, 2584, 2209, 18, 45]}, "goalTimeline": {"startWeight": 160.0, "goalWeight": 158.0, "estWeeksMin": 10, "estWeeksMax": 12, "rateLbPerWeek": 0.9, "variationPct": 0.2, "yTicks": [190, 187, -185, 181, 178, 172]}, "logging_confidence": {"value": 93, "label": "High"}, "confidence": {"value": 55, "label": "Inconclusive"}};
 </script>
 </head>
 <body>
@@ -4668,50 +4668,74 @@ window.__syncMacroUI = function(){
   function num(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
   function clamp(x,a,b){ return Math.max(a, Math.min(b,x)); }
 
-  function computeConfidence(){
+  function computeRecompConfidence(){
     const RD = window.REPORT_DATA || {};
-    const tokens = RD.tokens || {};
+    const t = RD.tokens || {};
 
-    const fatLoss = Math.abs(num(tokens.FAT_LOSS_LB || tokens.FAT_LOSS || 0));
-    const leanGain = num(tokens.LEAN_GAIN_LB || tokens.LEAN_GAIN || 0);
-    const strength = num(tokens.STRENGTH_PCT || 0);
-    const steps = num(tokens.DAILY_STEPS || 0);
-    const calGoal = num(tokens.DAILY_CAL_GOAL || 0);
+    const fatLoss   = Math.abs(num(t.FAT_LOSS_LB || t.FAT_LOSS || 0));
+    const leanGain  = num(t.LEAN_GAIN_LB || t.LEAN_GAIN || 0);
+    const strength  = num(t.STRENGTH_PCT || 0);
+    const steps     = num(t.DAILY_STEPS || 0);
+    const weeks     = Math.max(1, num(t.WEEKS_ELAPSED || 4));
 
-    let score = 50;
-    score += clamp(fatLoss * 3, 0, 20);
-    score += clamp(leanGain * 4, 0, 20);
-    score += clamp(strength * 0.8, 0, 20);
-    if(steps >= 9000) score += 10;
-    else if(steps >= 7500) score += 6;
-    else if(steps >= 6000) score += 3;
-    if(calGoal > 0) score += 5;
+    let score = 45; // neutral baseline
+
+    // ---------- Fat loss contribution (realistic cap) ----------
+    const fatPerWeek = fatLoss / weeks;
+    score += clamp(fatPerWeek * 6, 0, 18);
+
+    // ---------- Lean gain contribution (HARD physiological cap) ----------
+    const leanCap = 1.25; // lb per month (elite natural upper bound)
+    const leanNorm = clamp(leanGain / leanCap, 0, 1);
+    score += leanNorm * 18;
+
+    // ---------- Strength signal (direction matters) ----------
+    if (strength <= -5) score -= 10;
+    else if (strength < 0) score -= 5;
+    else score += clamp(strength * 0.9, 0, 14);
+
+    // ---------- Steps consistency ----------
+    if (steps >= 9000) score += 8;
+    else if (steps >= 7500) score += 5;
+    else if (steps >= 6000) score += 2;
 
     return Math.round(clamp(score, 0, 100));
   }
 
   function applyConfidence(){
-    const score = computeConfidence();
+    const rd = window.REPORT_DATA || {};
+    let score = null;
+
+    // 🚫 logging_confidence NEVER overrides recomposition
+    if (rd.confidence && rd.confidence.value != null){
+      score = Number(rd.confidence.value);
+    }
+
+    if (score == null){
+      score = computeRecompConfidence();
+    }
+
     const scoreEl = document.getElementById("recomp-conf-score");
     const badgeEl = document.getElementById("recomp-conf-badge");
     const copyEl  = document.getElementById("recomp-conf-copy");
+
     if(!scoreEl || !badgeEl || !copyEl) return;
 
     scoreEl.textContent = `Score: ${score}/100`;
 
-    let label = "Low", cls = "conf-low",
-        copy = "Signals are mixed. Focus on calorie consistency, protein, and daily movement.";
-    if(score >= 70){
-      label = "High"; cls = "conf-high";
-      copy = "Strong recomposition signals. Fat loss, lean gain, and performance trends align.";
+    let label="Low", cls="conf-low", copy="";
+    if(score >= 75){
+      label="High"; cls="conf-high";
+      copy="Strong recomposition signals. Fat loss, lean gain, and performance trends align.";
     } else if(score >= 55){
-      label = "Medium"; cls = "conf-med";
-      copy = "Encouraging recomposition signals. Tightening consistency will raise confidence.";
+      label="Medium"; cls="conf-med";
+      copy="Positive recomposition signals with some variability. Tightening consistency will raise confidence.";
+    } else {
+      copy="Signals are mixed. Focus on calorie consistency, protein intake, and progressive overload.";
     }
 
     badgeEl.textContent = `Confidence: ${label}`;
-    badgeEl.classList.remove("conf-low","conf-med","conf-high");
-    badgeEl.classList.add(cls);
+    badgeEl.className = `conf-badge ${cls}`;
     copyEl.textContent = copy;
   }
 

@@ -1140,14 +1140,14 @@ class DietCalculator(QWidget):
                 "estWeeksMax": 12,
                 "rateLbPerWeek": 0.9,
                 "variationPct": 0.2,
-                "yTicks": [190, 187, 184, 181, 178, 172],
+                "yTicks": [190, 187,~ 184, 181, 178, 172],
             },
         }
 
         # Write new report.json (this becomes baseline for NEXT run)
         # Attach HealthKit confidence score (set by HealthKit Totals dialog)
         if getattr(self, "healthkit_confidence", None):
-            data["confidence"] = self.healthkit_confidence
+            data["logging_confidence"] = self.healthkit_confidence
 
         report_json_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
@@ -1186,10 +1186,8 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     apply_dark_theme(app)
 
-    dlg = ReportTypeDialog()
-    if dlg.exec_() != QDialog.Accepted:
-        sys.exit(0)
-
-    window = DietCalculator(report_mode=dlg.choice())
+    # Go straight to main GUI (no Initial/Follow-up popup)
+    window = DietCalculator(report_mode="followup")
     window.show()
+
     sys.exit(app.exec_())
