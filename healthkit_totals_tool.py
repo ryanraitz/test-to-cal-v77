@@ -331,9 +331,10 @@ class HealthkitTotalsDialog(QDialog):
         self.output.setReadOnly(True)
         layout.addWidget(self.output)
 
-        run_btn = QPushButton("Compute Totals")
-        run_btn.clicked.connect(self._run)
-        layout.addWidget(run_btn)
+        self.run_btn = QPushButton("Compute Totals")
+        self.run_btn.clicked.connect(self._run)
+        layout.addWidget(self.run_btn)
+
 
     def _browse(self):
         path, _ = QFileDialog.getOpenFileName(self, "Select HealthKit CSV", "", "CSV Files (*.csv)")
@@ -528,3 +529,11 @@ class HealthkitTotalsDialog(QDialog):
         self.output.append(text)
         if self.on_result:
             self.on_result(text + "\n")
+                # ===== FINAL UI STATE CHANGE (VERY BOTTOM) =====
+        try:
+            self.run_btn.clicked.disconnect(self._run)
+        except TypeError:
+            pass
+
+        self.run_btn.setText("Continue")
+        self.run_btn.clicked.connect(self.accept)
